@@ -1,5 +1,4 @@
-import React, { useRef, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
+import React, { useRef  } from "react";
 import { CameraControls } from "@react-three/drei";
 
 export default function Camera() {
@@ -13,7 +12,7 @@ export default function Camera() {
 
   return (
     <>
-      <CameraControls ref={cameraControlsRef} maxPolarAngle = {Math.PI/2} />
+      <CameraControls ref={cameraControlsRef} />
     </>
   );
 }

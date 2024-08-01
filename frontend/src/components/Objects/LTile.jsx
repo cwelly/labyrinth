@@ -7,7 +7,7 @@ Files: LTile.glb [7.43KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\fr
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
-export function LTile(props) {
+export function LTile({isDraged=false,...props}) {
   const { nodes, materials } = useGLTF('/LTile-transformed.glb')
   return (
     <group {...props} dispose={null}>

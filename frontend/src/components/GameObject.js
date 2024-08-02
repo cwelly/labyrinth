@@ -15,6 +15,11 @@ import PushSpot from "./Objects/PushSpot.jsx";
 import { Physics } from "@react-three/rapier";
 import { PhysicsITile } from "./Objects/PhysicsITile.jsx";
 
+// 1. 움직이는 타일이 바닥 밑으로 안내려가게
+// 2. 구체가 아니라 탑뷰로 봤을때 엄청 크게하기
+// 3. 각 타일을 하나로 묶어서 변경사항 생길때마다 바꾸지 않게 하기
+
+
 // 타일을 밀어 넣을 수있는 위치 좌표 모음
 let push_spot_coordinates = [
   { key: 1, x: 8.2, y: -4.1, z: 0 },
@@ -138,13 +143,13 @@ function cal_tile_Object(server_side_tile_infos, tile_scale) {
     });
 }
 
-// function GameObejcts(cameraRef){
+// function GameObejcts(cameraRef , isTurn = true){
 const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
+// const GameObejcts = forwardRef(( props,ref) => {
   const tile_scale = [1, 0.1, 1];
   const meeple_scale = [0.2, 0.2, 0.2];
   const [tilesCoordinates, setTileCoordinates] = useState(null);
-  // const rigidRef = useRef();
-
+  const rigidRef = useRef();
   // 구독 및 pub 됐을때 실행하는 useEffect
   useEffect(() => {
     const updateTiles = (tilesCoordinates) => {
@@ -170,8 +175,8 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
   const [isDraged, setIsDraged] = useState(false);
 
   // 만약 플레이어가 현재 차례라면
-  if (isTurn) {
-    const pushSpot = push_spot_coordinates.map((push_spot_coordinate) => {});
+  if ( isTurn) {
+    // const pushSpot = push_spot_coordinates.map((push_spot_coordinate) => {});
   }
 
   return (
@@ -180,17 +185,27 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
 
       <Physics debug>
         <DragControls
-          onDragStart={() => {
+          onDragStart={(e) => {
             cameraRef.current.getCamera().enabled = false;
             setIsDraged(true);
+            // console.log(e)
           }}
+          
+          onDrag={(e)=>{
+            // console.log(rigidRef.current.getRigidBody()?.applyTorqueImpulse)
+            rigidRef.current.getRigidBody()?.setTranslation({x:e.elements[12]-8,y:e.elements[13]+3,z:e.elements[14]},true)
+            // rigidRef.current.getRigidBody()?.applyTorqueImpulse({x:e.elements[12] ,y:e.elements[13] ,z:e.elements[14]},true)
+            // console.log(world.contactWith)
+          }}
+
+
           onDragEnd={() => {
             cameraRef.current.getCamera().enabled = true;
-            // rigidRef.current?.setTranslation()
+            // console.log(rigidRef.current.getRigidBody())
             setIsDraged(false);
           }}
         >
-          <PhysicsITile  isDraged={isDraged} position={[-8, 3, 0]} scale={tile_scale} />
+          <PhysicsITile ref={rigidRef}  isDraged={isDraged} position={[-8, 3, 0]} scale={tile_scale} />
         </DragControls>
         <PushSpot
           position={[

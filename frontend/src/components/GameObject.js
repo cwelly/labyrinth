@@ -12,12 +12,15 @@ import React, {
 import { PieceTest } from "./Objects/PieceTest.jsx";
 import { DragControls } from "@react-three/drei";
 import PushSpot from "./Objects/PushSpot.jsx";
-import { Physics } from "@react-three/rapier";
+// import { Physics ,useRapier} from "@react-three/rapier";
 import { PhysicsITile } from "./Objects/PhysicsITile.jsx";
+import * as THREE from 'three';
+
 
 // 1. 움직이는 타일이 바닥 밑으로 안내려가게
 // 2. 구체가 아니라 탑뷰로 봤을때 엄청 크게하기
 // 3. 각 타일을 하나로 묶어서 변경사항 생길때마다 바꾸지 않게 하기
+
 
 
 // 타일을 밀어 넣을 수있는 위치 좌표 모음
@@ -143,6 +146,10 @@ function cal_tile_Object(server_side_tile_infos, tile_scale) {
     });
 }
 
+
+
+
+
 // function GameObejcts(cameraRef , isTurn = true){
 const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
 // const GameObejcts = forwardRef(( props,ref) => {
@@ -150,6 +157,7 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
   const meeple_scale = [0.2, 0.2, 0.2];
   const [tilesCoordinates, setTileCoordinates] = useState(null);
   const rigidRef = useRef();
+  const prevPosition = useRef(new THREE.Vector3());
   // 구독 및 pub 됐을때 실행하는 useEffect
   useEffect(() => {
     const updateTiles = (tilesCoordinates) => {
@@ -183,19 +191,17 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
     <Suspense fallback={null}>
       {tilesCoordinates}
 
-      <Physics debug>
+        
         <DragControls
           onDragStart={(e) => {
             cameraRef.current.getCamera().enabled = false;
             setIsDraged(true);
+            prevPosition.current.copy({x:e.x-8,y:e.y+3,z:e.z});
             // console.log(e)
           }}
           
           onDrag={(e)=>{
-            // console.log(rigidRef.current.getRigidBody()?.applyTorqueImpulse)
-            rigidRef.current.getRigidBody()?.setTranslation({x:e.elements[12]-8,y:e.elements[13]+3,z:e.elements[14]},true)
-            // rigidRef.current.getRigidBody()?.applyTorqueImpulse({x:e.elements[12] ,y:e.elements[13] ,z:e.elements[14]},true)
-            // console.log(world.contactWith)
+            
           }}
 
 
@@ -205,7 +211,7 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
             setIsDraged(false);
           }}
         >
-          <PhysicsITile ref={rigidRef}  isDraged={isDraged} position={[-8, 3, 0]} scale={tile_scale} />
+          <PhysicsITile    isDraged={isDraged} position={[-8, 3, 0]} scale={tile_scale} />
         </DragControls>
         <PushSpot
           position={[
@@ -214,7 +220,6 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
             push_spot_coordinates[0].y,
           ]}
         ></PushSpot>
-      </Physics>
 
       <PieceTest
         position={[coordinates[0].x, 0.303, coordinates[0].y]}

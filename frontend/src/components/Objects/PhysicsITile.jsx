@@ -4,26 +4,25 @@ Command: npx gltfjsx@6.4.1 ./public/ITile.glb --transform
 Files: ./public/ITile.glb [5.96KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\ITile-transformed.glb [2.67KB] (55%)
 */
 
-import React, { useRef, forwardRef, useImperativeHandle } from "react";
+import React, { useRef, forwardRef, useImperativeHandle} from "react";
 import { useGLTF, Edges } from "@react-three/drei";
-import { CuboidCollider, RigidBody } from "@react-three/rapier";
+
+
 
 // 타일을 만든다면 , 드래그 되었을때 윤곽선이 나오는 설정을 꼭 해줘야 함
-
-export const PhysicsITile = forwardRef((props, ref) => {
+export function PhysicsITile(props) {
+  // export const PhysicsITile = forwardRef((props, ref) => {
   const { isDraged = false } = props;
+  
+  // console.log(props.position)
   // export function PhysicsITile({ isDraged = false, ...props }) {
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
-  const rigidRef = useRef();
+  // const rigidRef = useRef();
 
-  useImperativeHandle(ref, () => ({
-    getRigidBody: () => rigidRef.current,
-  }));
-  // if(rigidRef.current!==undefined){
-  //   console.log(props.position)
-  //   rigidRef.current.setTranslation({x:props.position[0],y:props.position[2],z:props.position[1]},true)
-  //   console.log(rigidRef.current.translation())
-  // }
+  // useImperativeHandle(ref, () => ({
+  //   getRigidBody: () => rigidRef.current,
+  // }));
+
   return (
     <group {...props} dispose={null}>
       <group>
@@ -54,13 +53,21 @@ export const PhysicsITile = forwardRef((props, ref) => {
             color={"black"}
           ></Edges>
         </mesh>
-        <RigidBody ref={rigidRef} colliders="cuboid" type="kinematicPosition">
-          <CuboidCollider args={[1, 1, 1]} onIntersectionEnter={()=>{console.log("come in!")}}  onCollisionEnter={()=>{console.log("come in!")}}></CuboidCollider>
-        </RigidBody>
+        {/* <RigidBody ref={rigidRef} colliders="cuboid" type="kinematicPosition">
+          <CuboidCollider
+            args={[1, 1, 1]}
+            onIntersectionEnter={() => {
+              console.log("come in!");
+            }}
+            onCollisionEnter={() => {
+              console.log("come in!");
+            }}
+          ></CuboidCollider>
+        </RigidBody> */}
       </group>
     </group>
   );
-  // }
-});
+}
+// });
 
 useGLTF.preload("/ITile-transformed.glb");

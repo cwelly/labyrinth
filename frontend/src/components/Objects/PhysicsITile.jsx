@@ -10,21 +10,21 @@ import { useGLTF, Edges } from "@react-three/drei";
 
 
 // 타일을 만든다면 , 드래그 되었을때 윤곽선이 나오는 설정을 꼭 해줘야 함
-export function PhysicsITile(props) {
-  // export const PhysicsITile = forwardRef((props, ref) => {
+// export function PhysicsITile(props) {
+  export const PhysicsITile = forwardRef((props, ref) => {
   const { isDraged = false } = props;
   
   // console.log(props.position)
   // export function PhysicsITile({ isDraged = false, ...props }) {
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
-  // const rigidRef = useRef();
+  const dragTileRef = useRef();
 
-  // useImperativeHandle(ref, () => ({
-  //   getRigidBody: () => rigidRef.current,
-  // }));
+  useImperativeHandle(ref, () => ({
+    getDragTile: () => dragTileRef.current,
+  }));
 
   return (
-    <group {...props} dispose={null}>
+    <group ref={dragTileRef} {...props} dispose={null}>
       <group>
         <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
           <Edges
@@ -67,7 +67,7 @@ export function PhysicsITile(props) {
       </group>
     </group>
   );
-}
-// });
+// }
+});
 
 useGLTF.preload("/ITile-transformed.glb");

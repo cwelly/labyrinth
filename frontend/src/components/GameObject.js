@@ -2,6 +2,7 @@ import { ITile } from "./Objects/ITile.jsx";
 import { LTile } from "./Objects/LTile.jsx";
 import { OTile } from "./Objects/OTile.jsx";
 import coordinates from "../constant/BoardCoordinates.js";
+import { useFrame } from '@react-three/fiber';
 import React, {
   useRef,
   useState,
@@ -152,12 +153,18 @@ function cal_tile_Object(server_side_tile_infos, tile_scale) {
 
 // function GameObejcts(cameraRef , isTurn = true){
 const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
-// const GameObejcts = forwardRef(( props,ref) => {
+  // const GameObejcts = forwardRef(( props,ref) => {
   const tile_scale = [1, 0.1, 1];
   const meeple_scale = [0.2, 0.2, 0.2];
   const [tilesCoordinates, setTileCoordinates] = useState(null);
-  const rigidRef = useRef();
-  const prevPosition = useRef(new THREE.Vector3());
+  const pushSpotRef = useRef();
+  const dragTileRef = useRef();
+  let boxA = null;
+  let boxB = null;
+  // useFrame(() => {
+
+  // })
+
   // 구독 및 pub 됐을때 실행하는 useEffect
   useEffect(() => {
     const updateTiles = (tilesCoordinates) => {
@@ -165,7 +172,7 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
     };
     // 구독정보 추가되면 삭제할 부분
     setTileCoordinates(cal_tile_Object(server_side_tile_infos, tile_scale));
-    return () => {};
+    return () => { };
   }, [server_side_tile_infos]);
   // useEffect(() => {
   //   const updateBoard = (newBoardState) => {
@@ -183,43 +190,57 @@ const GameObejcts = forwardRef(({ cameraRef, isTurn = true }, ...props) => {
   const [isDraged, setIsDraged] = useState(false);
 
   // 만약 플레이어가 현재 차례라면
-  if ( isTurn) {
-    // const pushSpot = push_spot_coordinates.map((push_spot_coordinate) => {});
-  }
+  // if (isTurn) {
+  //   // const pushSpot = push_spot_coordinates.map((push_spot_coordinate) => {});
+  //   if (pushSpotRef.current && dragTileRef.current) {
+  //     const boxA = new THREE.Box3().setFromObject(pushSpotRef.current.getPushSpot())
+  //     const boxB = new THREE.Box3().setFromObject(dragTileRef.current.getDragTile())
+  //     if (boxA.intersectsBox(boxB)) {
+  //       console.log("합격입니다!")
+
+  //     }
+  //   }
+  // }
 
   return (
     <Suspense fallback={null}>
       {tilesCoordinates}
 
-        
-        <DragControls
-          onDragStart={(e) => {
-            cameraRef.current.getCamera().enabled = false;
-            setIsDraged(true);
-            prevPosition.current.copy({x:e.x-8,y:e.y+3,z:e.z});
-            // console.log(e)
-          }}
-          
-          onDrag={(e)=>{
-            
-          }}
+
+      <DragControls
+        onDragStart={(e) => {
+          cameraRef.current.getCamera().enabled = false;
+          setIsDraged(true);
+        }}
+
+        onDrag={(e) => {
+          if (pushSpotRef.current && dragTileRef.current) {
+            boxA = new THREE.Box3().setFromObject(pushSpotRef.current.getPushSpot())
+            boxB = new THREE.Box3().setFromObject(dragTileRef.current.getDragTile())
+            if (boxA.intersectsBox(boxB)) {
+              console.log("합격입니다!")
+
+            }
+          }
+        }}
 
 
-          onDragEnd={() => {
-            cameraRef.current.getCamera().enabled = true;
-            // console.log(rigidRef.current.getRigidBody())
-            setIsDraged(false);
-          }}
-        >
-          <PhysicsITile    isDraged={isDraged} position={[-8, 3, 0]} scale={tile_scale} />
-        </DragControls>
-        <PushSpot
-          position={[
-            push_spot_coordinates[0].x,
-            push_spot_coordinates[0].z,
-            push_spot_coordinates[0].y,
-          ]}
-        ></PushSpot>
+        onDragEnd={() => {
+          cameraRef.current.getCamera().enabled = true;
+          // console.log(rigidRef.current.getRigidBody())
+          setIsDraged(false);
+        }}
+      >
+        <PhysicsITile ref={dragTileRef} isDraged={isDraged} position={[-8, 3, 0]} scale={tile_scale} />
+      </DragControls>
+      <PushSpot
+        ref={pushSpotRef}
+        position={[
+          push_spot_coordinates[0].x,
+          push_spot_coordinates[0].z,
+          push_spot_coordinates[0].y,
+        ]}
+      ></PushSpot>
 
       <PieceTest
         position={[coordinates[0].x, 0.303, coordinates[0].y]}

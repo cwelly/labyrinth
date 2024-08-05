@@ -4,8 +4,9 @@ Command: npx gltfjsx@6.4.1 ./public/ITile.glb --transform
 Files: ./public/ITile.glb [5.96KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\ITile-transformed.glb [2.67KB] (55%)
 */
 
-import React, { useRef, forwardRef, useImperativeHandle} from "react";
+import React, { useRef, forwardRef, useImperativeHandle,useEffect} from "react";
 import { useGLTF, Edges } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 
 
 
@@ -19,9 +20,20 @@ import { useGLTF, Edges } from "@react-three/drei";
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
   const dragTileRef = useRef();
 
+  useEffect(() => {
+    if (dragTileRef.current) {
+      dragTileRef.current.customData = {
+        type: 'I',
+      };
+    }
+  }, []);
   useImperativeHandle(ref, () => ({
     getDragTile: () => dragTileRef.current,
   }));
+
+  useFrame(()=>{
+
+  });
 
   return (
     <group ref={dragTileRef} {...props} dispose={null}>

@@ -16,6 +16,7 @@ import PushSpot from "./Objects/PushSpot.jsx";
 import { PhysicsITile } from "./Objects/PhysicsITile.jsx";
 import * as THREE from "three";
 import { Container, Fullscreen, Text } from "@react-three/uikit";
+import { isVisible } from "@testing-library/user-event/dist/utils/index.js";
 
 // 1. 움직이는 타일이 바닥 밑으로 안내려가게
 // 2. 구체가 아니라 탑뷰로 봤을때 엄청 크게하기
@@ -143,7 +144,40 @@ function cal_tile_Object(server_side_tile_infos, tile_scale) {
       }
     });
 }
+function gen_tile({ dir, position, type, scale, ref }) {
+  // 초기화 제대로 안되었다면 out
 
+  if (!(position === undefined)) {
+    if (type === "L") {
+      return (
+        <LTile
+          ref={ref}
+          position={[position[0], position[2], position[1]]}
+          rotation={clock_way_rotate(dir)}
+          scale={scale}
+        />
+      );
+    } else if (type === "I") {
+      return (
+        <ITile
+          ref={ref}
+          position={[position[0], position[1], position[2]]}
+          rotation={clock_way_rotate(dir)}
+          scale={scale}
+        />
+      );
+    } else {
+      return (
+        <OTile
+          ref={ref}
+          position={[position[0], position[2], position[1]]}
+          rotation={clock_way_rotate(dir)}
+          scale={scale}
+        />
+      );
+    }
+  }
+}
 // function GameObejcts(cameraRef , isTurn = true){
 const GameObejcts = forwardRef(
   ({ onTileConfirmButton, cameraRef, isTurn = true }, ...props) => {
@@ -153,6 +187,9 @@ const GameObejcts = forwardRef(
     const [tilesCoordinates, setTileCoordinates] = useState(null);
     const pushSpotRefs = useRef([]);
     const dragTileRef = useRef();
+    const [pushSpotTarget,setPushSpotTarget] = useState();
+    const [confirmTileInfo, setConfirmTileInfo] = useState({});
+    const [dragTileDir, setDragTileDir] = useState(0);
     useFrame(() => {
       if (
         isTurn &&
@@ -170,12 +207,48 @@ const GameObejcts = forwardRef(
               const boxB = new THREE.Box3().setFromObject(
                 dragTileRef.current.getDragTile()
               );
-
               if (boxA.intersectsBox(boxB)) {
+                const intersection = new THREE.Box3();
+                intersection.copy(boxA);
+
+                intersection.intersect(boxB);
+
+                const intersectionVolume =
+                  intersection.getSize(new THREE.Vector3()).x *
+                  intersection.getSize(new THREE.Vector3()).y *
+                  intersection.getSize(new THREE.Vector3()).z;
+
+                const box1Volume =
+                  boxB.getSize(new THREE.Vector3()).x *
+                  boxB.getSize(new THREE.Vector3()).y *
+                  boxB.getSize(new THREE.Vector3()).z;
+
+                const overlapPercentage =
+                  (intersectionVolume / box1Volume) * 100;
+                // 일정 수준 이상 들어왔다면?
+                if (overlapPercentage > 30) {
+                  // 여기서 움직이는 타일은 isVisible=false,
+                  // 해당 좌표에 확정타일을 생성토록 정보를 넘겨준다.
+                  // console.log(item.getPushSpot())
+                  setConfirmTileInfo({
+                    isVisible: false,
+                    dir: dragTileDir,
+                    position: [
+                      item.getPushSpot().position.x,
+                      item.getPushSpot().position.y - 150,
+                      item.getPushSpot().position.z,
+                    ],
+                    type: dragTileRef.current.getDragTile().customData.type,
+                  });
+                } else {
+                  setConfirmTileInfo({
+                    isVisible: true,
+                  });
+                }
                 onTileConfirmButton({
                   isVisible: true,
                   tilePosition: item.getPushSpot().position,
-                  tileDir: 0,
+                  tileDir: overlapPercentage,
                   tileType: dragTileRef.current.getDragTile().customData.type,
                 });
                 acc.skip = true;
@@ -195,6 +268,14 @@ const GameObejcts = forwardRef(
         );
       }
     });
+
+    useEffect(() => {
+      if (confirmTileInfo.isVisible) {
+        console.log("isVisible is true", confirmTileInfo);
+      } else {
+        console.log("isVisible is false", confirmTileInfo);
+      }
+    }, [confirmTileInfo.isVisible]);
     // 구독 및 pub 됐을때 실행하는 useEffect
     useEffect(() => {
       const updateTiles = (tilesCoordinates) => {
@@ -249,7 +330,7 @@ const GameObejcts = forwardRef(
     return (
       <Suspense fallback={null}>
         {tilesCoordinates}
-        {isTurn&&pushTileCoordinates}
+        {isTurn && pushTileCoordinates}
         {isTurn && (
           <DragControls
             // 타일이 이사한곳으로 못나가도록 제한
@@ -261,43 +342,42 @@ const GameObejcts = forwardRef(
             onDragStart={(e) => {
               cameraRef.current.getCamera().enabled = false;
               setIsDraged(true);
+              // 이건 나중에 생각해보자
             }}
-            onHover={(e) => {
-              if (e.hovering) {
-              } else {
-              }
-            }}
-            onDrag={(e) => {
-              // if (pushSpotRef.current && dragTileRef.current) {
-              //   boxA = new THREE.Box3().setFromObject(
-              //     pushSpotRef.current.getPushSpot()
-              //   );
-              //   boxB = new THREE.Box3().setFromObject(
-              //     dragTileRef.current.getDragTile()
-              //   );
-              //   if (boxA.intersectsBox(boxB)) {
-              //     onTileConfirmButton(true);
-              //   }
-              //   else{
-              //     onTileConfirmButton(null);
-              //   }
-              // }
-            }}
-            onDragEnd={() => {
+            onDragEnd={(e) => {
               cameraRef.current.getCamera().enabled = true;
-              // console.log(rigidRef.current.getRigidBody())
               setIsDraged(false);
+              // 만약 유저가 해당위치에 두었다면 안보이는 상태로 그좌표로 이동시켜야함
+              if (!confirmTileInfo.isVisible) {
+                
+                dragTileRef.current.getDragTile().position.set(confirmTileInfo.position[0],confirmTileInfo.position[1],confirmTileInfo.position[2])
+                console.log(dragTileRef.current.getDragTile().position)
+              }
             }}
           >
             <PhysicsITile
               ref={dragTileRef}
               isDraged={isDraged}
               position={[-8, 3, 0]}
+              rotation={clock_way_rotate(confirmTileInfo.dir)}
               scale={tile_scale}
+              isVisible={confirmTileInfo.isVisible}
             />
           </DragControls>
         )}
 
+        {
+          // 미리보기 타일쓰
+          // 얘는 언제 생성되는가?
+          !(confirmTileInfo.isVisible === true) &&
+            gen_tile({
+              ref: pushSpotTarget,
+              dir: confirmTileInfo.dir,
+              position: confirmTileInfo.position,
+              type: confirmTileInfo.type,
+              scale: tile_scale,
+            })
+        }
         <PieceTest
           position={[coordinates[0].x, 0.303, coordinates[0].y]}
           scale={meeple_scale}

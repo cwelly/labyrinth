@@ -30,13 +30,14 @@ import { useFrame } from "@react-three/fiber";
   useImperativeHandle(ref, () => ({
     getDragTile: () => dragTileRef.current,
   }));
-
   useFrame(()=>{
-
-  });
+    if(dragTileRef){
+      console.log(dragTileRef.current.position)
+    }
+  })
 
   return (
-    <group ref={dragTileRef} {...props} dispose={null}>
+    <group ref={dragTileRef} visible={props.isVisible===true} {...props}  dispose={null}>
       <group>
         <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
           <Edges

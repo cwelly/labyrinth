@@ -30,11 +30,11 @@ import { useFrame } from "@react-three/fiber";
   useImperativeHandle(ref, () => ({
     getDragTile: () => dragTileRef.current,
   }));
-  useFrame(()=>{
-    if(dragTileRef){
-      console.log(dragTileRef.current.position)
-    }
-  })
+  // useFrame(()=>{
+  //   if(dragTileRef){
+  //     console.log(dragTileRef.current)
+  //   }
+  // })
 
   return (
     <group ref={dragTileRef} visible={props.isVisible===true} {...props}  dispose={null}>

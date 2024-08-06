@@ -187,7 +187,7 @@ const GameObejcts = forwardRef(
     const [tilesCoordinates, setTileCoordinates] = useState(null);
     const pushSpotRefs = useRef([]);
     const dragTileRef = useRef();
-    const [pushSpotTarget,setPushSpotTarget] = useState();
+    const [pushSpotTarget, setPushSpotTarget] = useState();
     const [confirmTileInfo, setConfirmTileInfo] = useState({});
     const [dragTileDir, setDragTileDir] = useState(0);
     useFrame(() => {
@@ -231,7 +231,7 @@ const GameObejcts = forwardRef(
                   // 해당 좌표에 확정타일을 생성토록 정보를 넘겨준다.
                   // console.log(item.getPushSpot())
                   setConfirmTileInfo({
-                    isVisible: false,
+                    isVisible: true,
                     dir: dragTileDir,
                     position: [
                       item.getPushSpot().position.x,
@@ -242,7 +242,7 @@ const GameObejcts = forwardRef(
                   });
                 } else {
                   setConfirmTileInfo({
-                    isVisible: true,
+                    isVisible: false,
                   });
                 }
                 onTileConfirmButton({
@@ -283,7 +283,7 @@ const GameObejcts = forwardRef(
       };
       // 구독정보 추가되면 삭제할 부분
       setTileCoordinates(cal_tile_Object(server_side_tile_infos, tile_scale));
-      return () => {};
+      return () => { };
     }, [server_side_tile_infos]);
     // useEffect(() => {
     //   const updateBoard = (newBoardState) => {
@@ -335,8 +335,8 @@ const GameObejcts = forwardRef(
           <DragControls
             // 타일이 이사한곳으로 못나가도록 제한
             dragLimits={[
-              [-1.0, 17.0],
-              [-3, 5],
+              [-10.0, 10.0],
+              [0, 8],
               [-9.0, 9.0],
             ]}
             onDragStart={(e) => {
@@ -348,17 +348,25 @@ const GameObejcts = forwardRef(
               cameraRef.current.getCamera().enabled = true;
               setIsDraged(false);
               // 만약 유저가 해당위치에 두었다면 안보이는 상태로 그좌표로 이동시켜야함
+              const worldPosition = new THREE.Vector3();
+              dragTileRef.current.getDragTile().getWorldPosition(worldPosition);
+              const targetPosition = new THREE.Vector3(confirmTileInfo.position[0], confirmTileInfo.position[1],  confirmTileInfo.position[2]); // 원하는 절대 위치
+              const displacement = targetPosition.sub(worldPosition);
+              dragTileRef.current.getDragTile().position.add(displacement);
+              // console.log(dragTileRef.current.getDragTile(), confirmTileInfo)
+              
+              // group.position.add(displacement);
+              // dragTileRef.current.getDragTile().position.set(confirmTileInfo.position[0], confirmTileInfo.position[1], confirmTileInfo.position[2])
               if (!confirmTileInfo.isVisible) {
-                
-                dragTileRef.current.getDragTile().position.set(confirmTileInfo.position[0],confirmTileInfo.position[1],confirmTileInfo.position[2])
-                console.log(dragTileRef.current.getDragTile().position)
+
+                // dragTileRef.current.getDragTile().position.set(1,1,1);
+                // setConfirmTileInfo({isVisible:false,...confirmTileInfo})
               }
             }}
           >
             <PhysicsITile
               ref={dragTileRef}
               isDraged={isDraged}
-              position={[-8, 3, 0]}
               rotation={clock_way_rotate(confirmTileInfo.dir)}
               scale={tile_scale}
               isVisible={confirmTileInfo.isVisible}
@@ -370,13 +378,13 @@ const GameObejcts = forwardRef(
           // 미리보기 타일쓰
           // 얘는 언제 생성되는가?
           !(confirmTileInfo.isVisible === true) &&
-            gen_tile({
-              ref: pushSpotTarget,
-              dir: confirmTileInfo.dir,
-              position: confirmTileInfo.position,
-              type: confirmTileInfo.type,
-              scale: tile_scale,
-            })
+          gen_tile({
+            ref: pushSpotTarget,
+            dir: confirmTileInfo.dir,
+            position: confirmTileInfo.position,
+            type: confirmTileInfo.type,
+            scale: tile_scale,
+          })
         }
         <PieceTest
           position={[coordinates[0].x, 0.303, coordinates[0].y]}

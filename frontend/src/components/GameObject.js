@@ -9,6 +9,7 @@ import React, {
   useEffect,
   Suspense,
   forwardRef,
+  useImperativeHandle,
 } from "react";
 import { PieceTest } from "./Objects/PieceTest.jsx";
 import { DragControls, useKeyboardControls } from "@react-three/drei";
@@ -90,7 +91,12 @@ let server_side_tile_infos = [
   { type: "O", dir: 2 },
   { type: "L", dir: 2 },
 ];
-
+let testGamePieceInfo = [
+  { key: 1, nickName: "Mike", color: "red", coordinate: 1 },
+  { key: 2, nickName: "Sam", color: "blue", coordinate: 7 },
+  { key: 3, nickName: "Susie", color: "green", coordinate: 42 },
+  { key: 4, nickName: "Kai", color: "yellow", coordinate: 49 },
+];
 // 타일의 방향을 준다면 , 그대로 불러온 회전시킬 좌표를 리턴하는 메소드
 function clock_way_rotate(dir) {
   if (dir === 1) {
@@ -102,6 +108,40 @@ function clock_way_rotate(dir) {
   } else {
     return [0, 0, 0];
   }
+}
+
+// 타일이 확정되고 밀어버리는 메소드
+function tilePush({ props }) {
+  console.log(props, "여긴 tilePush");
+
+  // 필요한 정보?
+  // 어디에서 어디로 밀건지( 시작점 만 알면 미는 방향과 좌표들을 알 수 있다! ) 
+  // -> key값 혹은 좌표값
+  // draggble tile 의 type 
+  // PieceInfo 처리 ( 마지막에 있다면 처음부분으로 보낸다.)
+  // server_side_tile_infos 설정 바꾸고
+  // useFrame 에서 사용할 Animation 설정
+  // ex if(turnInfo==2&& PushAnimation==0)
+
+
+
+  // - 바뀌고 퍼블리싱할 정보
+  // 바뀐 게임말들의 위치  (PieceInfo)
+  // 드래그 하게될 타일 정보 
+  // 바뀐 타일 좌표 ( server_side_tile_infos)
+}
+
+// 게임말들을 렌더링할 컴포넌트
+function Pieces({ PieceInfo,MeepleScale }) {
+  return PieceInfo.map((info) => {
+    return (
+      <PieceTest
+        position={[coordinates[info.coordinate-1].x, 0.303, coordinates[info.coordinate-1].y]}
+        scale={MeepleScale}
+        color={info.color}
+      />
+    );
+  });
 }
 
 // 서버에서 받은 자료를 기반으로 리턴할 메소드까지 계산하는 메소드
@@ -184,8 +224,8 @@ function gen_tile({ dir, position, type, scale, ref }) {
 // const GameObejcts = forwardRef(
 //   ({ onTileConfirmButton, cameraRef, isTurn = true }, ...props) => {
 const GameObejcts = forwardRef((props, ref) => {
-  const {state, cameraRef, isTurn = true } = props;
-  const { turnInfo ,setTurnInfo,handleTileConfirm} = state;
+  const { state, cameraRef, isTurn = true } = props;
+  const { turnInfo, setTurnInfo, handleTileConfirm, tileConfirmButton } = state;
   const tile_scale = [1, 0.1, 1];
   const meeple_scale = [0.2, 0.2, 0.2];
   const pushSpotRefs = useRef([]);
@@ -200,6 +240,8 @@ const GameObejcts = forwardRef((props, ref) => {
   const [keyDelay, setKeyDelay] = useState(0);
   // 사용자의 키입력을 확인하기 위한 control
   const [, get] = useKeyboardControls();
+  // 드래그 시작할때를 알아차리기 위한 변수
+  const [isDraged, setIsDraged] = useState(false);
   // 서버에서 온 타일들의 정보를 기록하는 state
   const [serverTileInfo, setServerTileInfo] = useState(server_side_tile_infos);
   // dragTile의 매트릭스 값을 사용하기 위한 매트릭스 값
@@ -207,33 +249,28 @@ const GameObejcts = forwardRef((props, ref) => {
   // 드래그 타일의 회전값을 제어하기 위한 state
   const [dragTileDir, setDragTileDir] = useState(0);
   const [confirmTileInfo, setConfirmTileInfo] = useState({ isVisible: true });
-  useFrame((state ,delta) => {
+  useFrame((state, delta) => {
     // 사용자 입력이 들어왔는지 확인
     const { clock, antiClock } = get();
     // 회전값들어왔다면
-    if (clock ) {
-      if(keyDelay===0){
-        setKeyDelay(1)
+    if (clock) {
+      if (keyDelay === 0) {
+        setKeyDelay(1);
         setDragTileDir((dragTileDir + 1) % 4);
         setConfirmTileInfo({ ...confirmTileInfo, dir: dragTileDir });
-
       }
       // setTimeout(()=>{animationControls={...animationControls,clock:undefined}},1000);
-      
-    }
-    else if(antiClock){
-      if(keyDelay===0){
-        setKeyDelay(1)
-        setDragTileDir((4+dragTileDir - 1) % 4);
+    } else if (antiClock) {
+      if (keyDelay === 0) {
+        setKeyDelay(1);
+        setDragTileDir((4 + dragTileDir - 1) % 4);
         setConfirmTileInfo({ ...confirmTileInfo, dir: dragTileDir });
-
       }
     }
-    if(keyDelay>1.5){
+    if (keyDelay > 1.5) {
       setKeyDelay(0);
-    }
-    else if(keyDelay>0){
-      setKeyDelay(keyDelay+delta);
+    } else if (keyDelay > 0) {
+      setKeyDelay(keyDelay + delta);
     }
 
     // 자기 차례이고 , 타일 밀장소(pushSpot) 과 드래그 하고 있는 타일(dragTile)
@@ -335,9 +372,13 @@ const GameObejcts = forwardRef((props, ref) => {
     // setTileCoordinates(cal_tile_Object(server_side_tile_infos, tile_scale));
     setServerTileInfo(server_side_tile_infos);
     return () => {};
-  }, []); 
+  }, []);
 
-
+  // 차례정보를 따라가는 useEffect
+  useEffect(() => {
+    console.log("차례가 바뀌었습니다 !", turnInfo);
+  }, [turnInfo]);
+  // pushSpot을 만드는 컴포넌트로 빼자
   const pushTileCoordinates = push_spot_coordinates.map((coordinate) => {
     return (
       <PushSpot
@@ -350,9 +391,15 @@ const GameObejcts = forwardRef((props, ref) => {
     );
   });
 
-  // 드래그 시작할때를 알아차리기 위한 변수
-  const [isDraged, setIsDraged] = useState(false);
- 
+  useImperativeHandle(ref, () => ({
+    tilePush() {
+      console.log("GameBoard function executed!");
+      // 여기에 원하는 로직을 추가합니다.
+      // 일단 게임말 위치 처리. (useFrame으로 처리할 준비)
+      // 타일들도 위치 처리 (useFrame으로 처리할 준비)
+      // useFrame에 사용할 Animation 값 초기화
+    },
+  }));
 
   return (
     <Suspense fallback={null}>
@@ -361,8 +408,8 @@ const GameObejcts = forwardRef((props, ref) => {
         server_side_tile_infos={serverTileInfo}
         tile_scale={tile_scale}
       />
-      {(turnInfo===1) && pushTileCoordinates}
-      {(turnInfo===1) && (
+      {turnInfo === 1 && pushTileCoordinates}
+      {turnInfo === 1 && (
         <DragControls
           matrix={dragMatrix}
           // 타일이 이사한곳으로 못나가도록 제한
@@ -375,7 +422,7 @@ const GameObejcts = forwardRef((props, ref) => {
             cameraRef.current.getCamera().enabled = false;
             setIsDraged(true);
             // 이건 나중에 생각해보자
-            handleTileConfirm(false)
+            handleTileConfirm(false);
           }}
           onDragEnd={(e) => {
             cameraRef.current.getCamera().enabled = true;
@@ -389,7 +436,7 @@ const GameObejcts = forwardRef((props, ref) => {
                 confirmTileInfo.position.z
               );
               setDragMatrix(translationMatrix);
-              handleTileConfirm(true)
+              handleTileConfirm(true);
             }
           }}
         >
@@ -407,7 +454,8 @@ const GameObejcts = forwardRef((props, ref) => {
       {
         // 미리보기 타일쓰
         // 얘는 언제 생성되는가?
-        (turnInfo===1)&&!(confirmTileInfo.isVisible === true) &&
+        turnInfo === 1 &&
+          !(confirmTileInfo.isVisible === true) &&
           gen_tile({
             dir: confirmTileInfo.dir,
             position: confirmTileInfo.position,

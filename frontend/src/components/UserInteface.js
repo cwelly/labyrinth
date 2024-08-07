@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 
 function UserInterface(props) {
+  const {turnInfo ,setTurnInfo,handleTileConfirm,tileConfirmButton} = props.state
   const html = {
     position: 'fixed',
   right: '20px',
@@ -24,11 +25,14 @@ function UserInterface(props) {
   };
   function handleActive() {
     alert("clicked");
-    props.handleTileConfirmButton(false)
+    handleTileConfirm(false)
+    // 차례 정보를 바꿔버려
+    setTurnInfo(2);
+    props.handleTilePush();
   }
   return (
     <div style={html}>
-      {props.isTileConfirmButton && (
+      {tileConfirmButton && (
         <button style={buttonStyle} onClick={handleActive}>
           타일 확정?!
         </button>

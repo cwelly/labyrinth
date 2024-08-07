@@ -17,6 +17,7 @@ function Canva() {
   const grid_size = [100, 100];
   const grid_position = [0, 0, 0];
   const cameraRef = useRef();
+  const gameObjectRef = useRef();
   // 타일확정 버튼 state
   const [tileConfirmButton, setTileConfirmButton] = useState(false);
   // 게임의 현재 상태(턴과는 상관없는 )state
@@ -24,9 +25,13 @@ function Canva() {
   const handleTileConfirm = (boo) => {
     setTileConfirmButton(boo);
   };
-
+  const handleTilePush= ()=>{
+    if(gameObjectRef.current){
+      gameObjectRef.current.tilePush();
+    }
+  }
   const state = {
-    turnInfo ,setTurnInfo,handleTileConfirm
+    turnInfo ,setTurnInfo,handleTileConfirm,tileConfirmButton
   }
 
   return (
@@ -38,7 +43,7 @@ function Canva() {
         ]}
         
       >
-        <UserInterface isTileConfirmButton={tileConfirmButton} handleTileConfirmButton={handleTileConfirm} />
+        <UserInterface state={state} handleTilePush={handleTilePush} />
         <Canvas
           camera={{ position: [-15, 10, 0], fov: 60, target: [0, 0, 10] }}
         >
@@ -51,6 +56,7 @@ function Canva() {
           {/* 타일들을 로드할때 시간이 좀 걸리기 때문 */}
           <Suspense>
             <GameObejcts
+              ref={gameObjectRef}
               cameraRef={cameraRef}
               state = {state}
             />

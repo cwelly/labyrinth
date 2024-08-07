@@ -4,31 +4,51 @@ Command: npx gltfjsx@6.4.1 ./public/ITile.glb --transform
 Files: ./public/ITile.glb [5.96KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\ITile-transformed.glb [2.67KB] (55%)
 */
 
-import React, { useRef, forwardRef, useImperativeHandle,useEffect} from "react";
+import React, {
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+  useState,
+} from "react";
 import { useGLTF, Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-
-
-
+import * as THREE from "three";
 // 타일을 만든다면 , 드래그 되었을때 윤곽선이 나오는 설정을 꼭 해줘야 함
 // export function PhysicsITile(props) {
-  export const PhysicsITile = forwardRef((props, ref) => {
+export const PhysicsITile = forwardRef((props, ref) => {
   const { isDraged = false } = props;
-  
-  // console.log(props.position)
-  // export function PhysicsITile({ isDraged = false, ...props }) {
+
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
   const dragTileRef = useRef();
+
 
   useEffect(() => {
     if (dragTileRef.current) {
       dragTileRef.current.customData = {
-        type: 'I',
+        type: "I",
       };
     }
   }, []);
   useImperativeHandle(ref, () => ({
     getDragTile: () => dragTileRef.current,
+    updatePosition: (confirmTileInfo) => {
+      if (dragTileRef.current) {
+        const newPosition = new THREE.Vector3(
+          confirmTileInfo.position.x,
+          confirmTileInfo.position.y,
+          confirmTileInfo.position.z
+        );
+
+        // dragTileRef의 position을 업데이트합니다.
+        dragTileRef.current.position.copy(newPosition);
+
+        // dragTileRef의 행렬을 업데이트합니다.
+        dragTileRef.current.updateMatrix();
+        dragTileRef.current.updateMatrixWorld(true);
+      }
+    },
+    // getPosition: () => position,
   }));
   // useFrame(()=>{
   //   if(dragTileRef){
@@ -37,7 +57,12 @@ import { useFrame } from "@react-three/fiber";
   // })
 
   return (
-    <group ref={dragTileRef} visible={props.isVisible===true} {...props}  dispose={null}>
+    <group
+      ref={dragTileRef}
+      visible={props.isVisible === true}
+      {...props}
+      dispose={null}
+    >
       <group>
         <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
           <Edges
@@ -80,7 +105,7 @@ import { useFrame } from "@react-three/fiber";
       </group>
     </group>
   );
-// }
+  // }
 });
 
 useGLTF.preload("/ITile-transformed.glb");

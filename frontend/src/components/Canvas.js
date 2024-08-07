@@ -18,25 +18,27 @@ function Canva() {
   const grid_position = [0, 0, 0];
   const cameraRef = useRef();
   // 타일확정 버튼 state
-  const [tileConfirmButton, setTileConfirmButton] = useState({
-    isVisible: false,
-    tilePosition: [],
-    tileDir: 0,
-    tileType: "",
-  });
+  const [tileConfirmButton, setTileConfirmButton] = useState(false);
+  // 게임의 현재 상태(턴과는 상관없는 )state
+  const [turnInfo,setTurnInfo] = useState(1);
   const handleTileConfirm = (boo) => {
     setTileConfirmButton(boo);
   };
+
+  const state = {
+    turnInfo ,setTurnInfo,handleTileConfirm
+  }
 
   return (
     <>
       <KeyboardControls
         map={[
-          { name: "clock", keys: ["r", "R"] },
-          { name: "antiClock", keys: ["q", "Q"] },
+          { name: "clock", keys: ["r", "R"] ,up:true},
+          { name: "antiClock", keys: ["q", "Q"]  , up:true},
         ]}
+        
       >
-        <UserInterface isTileConfirmButton={tileConfirmButton} />
+        <UserInterface isTileConfirmButton={tileConfirmButton} handleTileConfirmButton={handleTileConfirm} />
         <Canvas
           camera={{ position: [-15, 10, 0], fov: 60, target: [0, 0, 10] }}
         >
@@ -50,7 +52,7 @@ function Canva() {
           <Suspense>
             <GameObejcts
               cameraRef={cameraRef}
-              onTileConfirmButton={handleTileConfirm}
+              state = {state}
             />
           </Suspense>
         </Canvas>

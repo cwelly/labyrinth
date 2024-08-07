@@ -9,9 +9,6 @@ function UserInterface(props) {
   display: 'flex',
   flexDirection: 'column',
   gap: '15px',
-    // position: "absolute",
-    // top: "20em",
-    // right: "20",
     zIndex: "1",
   };
   const buttonStyle = {
@@ -27,40 +24,17 @@ function UserInterface(props) {
   };
   function handleActive() {
     alert("clicked");
+    props.handleTileConfirmButton(false)
   }
   return (
     <div style={html}>
-      {props.isTileConfirmButton.isVisible && (
+      {props.isTileConfirmButton && (
         <button style={buttonStyle} onClick={handleActive}>
-          {props.isTileConfirmButton.tileDir}
+          타일 확정?!
         </button>
       )}
-      {/* <ScreenSpace
-        depth={10} // Distance from camera
-      >
-        <Html transform style={{ marginBottom: 50 }} position={[5, 3, 0]}>
-          {props.isTileConfirmButton.isVisible && (
-            <button style={buttonStyle} onClick={handleActive}>
-              {props.isTileConfirmButton.tilePosition.x},
-              {props.isTileConfirmButton.tilePosition.z}
-            </button>
-          )}
-        </Html>
-      </ScreenSpace> */}
     </div>
   );
-  // return  createPortal(
-  //   <>
-  //     <OrthographicCamera ref={virtualCamera} near={0.0001} far={1} />
-  //     <group position-z={-0.1} position-x={0}>
-  //       <Html>
-  //         I want text here
-  //       </Html>
-  //       {/* <Plane args={[20, 10, 1]} position-y={0}/>                        */}
-  //     </group>
-  //   </>,
-  //   virtualScene
-  // )
 }
 
 export default UserInterface;

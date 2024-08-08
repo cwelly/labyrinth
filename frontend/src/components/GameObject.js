@@ -2,7 +2,7 @@ import { ITile } from "./Objects/ITile.jsx";
 import { LTile } from "./Objects/LTile.jsx";
 import { OTile } from "./Objects/OTile.jsx";
 import coordinates from "../constant/BoardCoordinates.js";
-import { useFrame } from "@react-three/fiber";
+import { useThree, useFrame } from "@react-three/fiber";
 import React, {
   useRef,
   useState,
@@ -16,8 +16,6 @@ import { DragControls, useKeyboardControls } from "@react-three/drei";
 import PushSpot from "./Objects/PushSpot.jsx";
 import { PhysicsITile } from "./Objects/PhysicsITile.jsx";
 import * as THREE from "three";
-import { Container, Fullscreen, Text } from "@react-three/uikit";
-import { isVisible } from "@testing-library/user-event/dist/utils/index.js";
 
 // 1. 움직이는 타일이 바닥 밑으로 안내려가게
 // 2. 구체가 아니라 탑뷰로 봤을때 엄청 크게하기
@@ -92,11 +90,12 @@ let server_side_tile_infos = [
   { type: "L", dir: 2 },
 ];
 let testGamePieceInfo = [
-  { key: 1, nickName: "Mike", color: "red", coordinate: 1 },
-  { key: 2, nickName: "Sam", color: "blue", coordinate: 7 },
-  { key: 3, nickName: "Susie", color: "green", coordinate: 42 },
-  { key: 4, nickName: "Kai", color: "yellow", coordinate: 49 },
+  { key: 1, nickName: "Mike", color: "red", coordinate: 2 },
+  { key: 2, nickName: "Sam", color: "blue", coordinate: 14 },
+  { key: 3, nickName: "Susie", color: "green", coordinate: 28 },
+  { key: 4, nickName: "Kai", color: "yellow", coordinate: 42 },
 ];
+
 // 타일의 방향을 준다면 , 그대로 불러온 회전시킬 좌표를 리턴하는 메소드
 function clock_way_rotate(dir) {
   if (dir === 1) {
@@ -110,44 +109,31 @@ function clock_way_rotate(dir) {
   }
 }
 
-// 타일이 확정되고 밀어버리는 메소드
-function tilePush({ props }) {
-  console.log(props, "여긴 tilePush");
-
-  // 필요한 정보?
-  // 어디에서 어디로 밀건지( 시작점 만 알면 미는 방향과 좌표들을 알 수 있다! ) 
-  // -> key값 혹은 좌표값
-  // draggble tile 의 type 
-  // PieceInfo 처리 ( 마지막에 있다면 처음부분으로 보낸다.)
-  // server_side_tile_infos 설정 바꾸고
-  // useFrame 에서 사용할 Animation 설정
-  // ex if(turnInfo==2&& PushAnimation==0)
-
-
-
-  // - 바뀌고 퍼블리싱할 정보
-  // 바뀐 게임말들의 위치  (PieceInfo)
-  // 드래그 하게될 타일 정보 
-  // 바뀐 타일 좌표 ( server_side_tile_infos)
-}
-
-// 게임말들을 렌더링할 컴포넌트
-function Pieces({ PieceInfo,MeepleScale }) {
+const Pieces = forwardRef((props, ref) => {
+  const { PieceInfo, MeepleScale } = props;
+  // 게임말들을 렌더링할 컴포넌트
   return PieceInfo.map((info) => {
     return (
       <PieceTest
-        position={[coordinates[info.coordinate-1].x, 0.303, coordinates[info.coordinate-1].y]}
+        key={info.key}
+        ref={(el) => {
+          ref.current[info.key] = el;
+        }}
+        position={[
+          coordinates[info.coordinate - 1].x,
+          0.303,
+          coordinates[info.coordinate - 1].y,
+        ]}
         scale={MeepleScale}
         color={info.color}
       />
     );
   });
-}
+});
 
 // 서버에서 받은 자료를 기반으로 리턴할 메소드까지 계산하는 메소드
-function GameBoard({ server_side_tile_infos, tile_scale }) {
-  // console.log(server_side_tile_infos,"server_side")
-  // console.log(tile_scale,"tile_Scale")
+const GameBoard = forwardRef((props, ref) => {
+  const { server_side_tile_infos, tile_scale } = props;
   return coordinates
     .map((coordinate) => ({
       ...coordinate,
@@ -158,6 +144,9 @@ function GameBoard({ server_side_tile_infos, tile_scale }) {
       if (temp_tile.tile_type === "L") {
         return (
           <LTile
+            ref={(el) => {
+              ref.current[temp_tile.key] = el;
+            }}
             key={temp_tile.key}
             position={[temp_tile.x, temp_tile.z, temp_tile.y]}
             rotation={clock_way_rotate(temp_tile.tile_dir)}
@@ -167,6 +156,9 @@ function GameBoard({ server_side_tile_infos, tile_scale }) {
       } else if (temp_tile.tile_type === "I") {
         return (
           <ITile
+            ref={(el) => {
+              ref.current[temp_tile.key] = el;
+            }}
             key={temp_tile.key}
             position={[temp_tile.x, temp_tile.z, temp_tile.y]}
             rotation={clock_way_rotate(temp_tile.tile_dir)}
@@ -176,6 +168,9 @@ function GameBoard({ server_side_tile_infos, tile_scale }) {
       } else {
         return (
           <OTile
+            ref={(el) => {
+              ref.current[temp_tile.key] = el;
+            }}
             key={temp_tile.key}
             position={[temp_tile.x, temp_tile.z, temp_tile.y]}
             rotation={clock_way_rotate(temp_tile.tile_dir)}
@@ -184,7 +179,7 @@ function GameBoard({ server_side_tile_infos, tile_scale }) {
         );
       }
     });
-}
+});
 // 타일을 둘자리에 보기용으로 생기는 타일
 function gen_tile({ dir, position, type, scale, ref }) {
   // 초기화 제대로 안되었다면 out
@@ -225,42 +220,96 @@ function gen_tile({ dir, position, type, scale, ref }) {
 //   ({ onTileConfirmButton, cameraRef, isTurn = true }, ...props) => {
 const GameObejcts = forwardRef((props, ref) => {
   const { state, cameraRef, isTurn = true } = props;
+  const { scene } = useThree();
   const { turnInfo, setTurnInfo, handleTileConfirm, tileConfirmButton } = state;
   const tile_scale = [1, 0.1, 1];
   const meeple_scale = [0.2, 0.2, 0.2];
   const pushSpotRefs = useRef([]);
   const dragTileRef = useRef();
+  const gameBoardRef = useRef([]);
+  const piecesRef = useRef([]);
   //현재 차례의 어느 순간인지 정보를 알기위한 state
   // 0 : 내 차례 아님
   // 1 : 내 차례, 타일 이동 중
   // 2 : 내 차례, 타일 확정후 타일 움직이는 중
   // 3 : 내 차례 , 말 이동 중
   // 4: 내 차례 , 말 확정 후 말 움직이는 중
-  // 키입력에 딜레이를 주기위한 state
-  const [keyDelay, setKeyDelay] = useState(0);
-  // 사용자의 키입력을 확인하기 위한 control
-  const [, get] = useKeyboardControls();
+  // 다른 사람의 드래그 타일의 위치를 정하는 state
+  const [dragTilePosition, setDragTilePosition] = useState({
+    x: 0,
+    y: 2,
+    z: 0,
+  });
+  // 게임말의 정보를 서버에서 받아오는 정보
+  const [piecesInfo, setPiecesInfo] = new useState(testGamePieceInfo);
+  // 타일 확정후 , 움직이는 오브젝트들을 저장하는 state
+  const [moveObjects, setMoveObjects] = useState([]);
+  // 드래그 타일의 타입을 정하는 state
+  const [dragTileType, setDragTileType] = useState("I");
+  // 드래그 타일의 회전값을 제어하기 위한 state
+  const [dragTileDir, setDragTileDir] = useState(0);
   // 드래그 시작할때를 알아차리기 위한 변수
   const [isDraged, setIsDraged] = useState(false);
+  // 키입력에 딜레이를 주기위한 state
+  const [keyDelay, setKeyDelay] = useState(0);
+  // 타일 확정 후 애니메이션을 제어하기 위한 변수
+  const [objectMoveDelay, setObjectMoveDelay] = useState(0);
+  // 사용자의 키입력을 확인하기 위한 control
+  const [, get] = useKeyboardControls();
   // 서버에서 온 타일들의 정보를 기록하는 state
   const [serverTileInfo, setServerTileInfo] = useState(server_side_tile_infos);
   // dragTile의 매트릭스 값을 사용하기 위한 매트릭스 값
   const [dragMatrix, setDragMatrix] = useState(new THREE.Matrix4());
-  // 드래그 타일의 회전값을 제어하기 위한 state
-  const [dragTileDir, setDragTileDir] = useState(0);
   const [confirmTileInfo, setConfirmTileInfo] = useState({ isVisible: true });
+  
+
   useFrame((state, delta) => {
     // 사용자 입력이 들어왔는지 확인
     const { clock, antiClock } = get();
+
+    // 타일 애니메이션 체크
+    if (objectMoveDelay !== 0) {
+      // 종료조건
+      if (objectMoveDelay < 0) {
+        setTurnInfo(3);
+        setObjectMoveDelay(0);
+      }
+      // 실행조건
+      else {
+        // console.log("objectMoveDelay",objectMoveDelay, delta)
+        if (confirmTileInfo.position.x === 8.2) {
+          // 123
+          moveObjects.map((object,i)=>{
+            if(object.parent===null){
+              object.parent=scene;
+              console.log(object.position,"this.is.object.pos")
+            }
+            object.translateX(delta)
+            object.updateMatrixWorld(true)
+          })
+        } else if (confirmTileInfo.position.x === -8.2) {
+          /// 789
+        } else if (confirmTileInfo.position.z === 8.2) {
+          // 456
+        } else if (confirmTileInfo.position.z === -8.2) {
+          // 10 11 12
+        } else {
+          console.log("뭔가 이상해 confirmTileInfo 가 이상해");
+        }
+        // console.log(moveObjects)
+        setObjectMoveDelay(objectMoveDelay - delta);
+      }
+    }
+
     // 회전값들어왔다면
-    if (clock) {
+    if (turnInfo === 1 && clock) {
       if (keyDelay === 0) {
         setKeyDelay(1);
         setDragTileDir((dragTileDir + 1) % 4);
         setConfirmTileInfo({ ...confirmTileInfo, dir: dragTileDir });
       }
       // setTimeout(()=>{animationControls={...animationControls,clock:undefined}},1000);
-    } else if (antiClock) {
+    } else if (turnInfo === 1 && antiClock) {
       if (keyDelay === 0) {
         setKeyDelay(1);
         setDragTileDir((4 + dragTileDir - 1) % 4);
@@ -278,8 +327,8 @@ const GameObejcts = forwardRef((props, ref) => {
     if (
       isTurn &&
       pushSpotRefs.current &&
-      dragTileRef.current &&
-      dragTileRef.current.getDragTile().customData
+      dragTileRef.current
+      // &&      dragTileRef.current.getDragTile().customData
     ) {
       pushSpotRefs.current.reduce(
         (acc, item) => {
@@ -323,19 +372,14 @@ const GameObejcts = forwardRef((props, ref) => {
                     y: item.getPushSpot().position.y - 150,
                     z: item.getPushSpot().position.z,
                   },
-                  type: dragTileRef.current.getDragTile().customData.type,
+                  // type: dragTileRef.current.getDragTile().customData.type,
+                  type: dragTileType,
                 });
               } else {
                 setConfirmTileInfo({
                   isVisible: true,
                 });
               }
-              // onTileConfirmButton({
-              //   isVisible: true,
-              //   tilePosition: item.getPushSpot().position,
-              //   tileDir: overlapPercentage,
-              //   tileType: dragTileRef.current.getDragTile().customData.type,
-              // });
               acc.skip = true;
             } else {
               // onTileConfirmButton({
@@ -390,14 +434,618 @@ const GameObejcts = forwardRef((props, ref) => {
       />
     );
   });
+  // 단순한 정보 확인용
+  useEffect(() => {
+    console.log("moveObjects :", moveObjects); // 업데이트된 상태 값 출력
+  }, [moveObjects]);
 
   useImperativeHandle(ref, () => ({
+    // 타일을 확정하고 미는 로직
     tilePush() {
-      console.log("GameBoard function executed!");
+      console.log("타일이 확정되었습니다 ! : ", confirmTileInfo);
+      console.log("현재 보드 상황입니다 ", gameBoardRef?.current);
+      console.log("서버에서 받아온 정보입니다 ", serverTileInfo);
       // 여기에 원하는 로직을 추가합니다.
       // 일단 게임말 위치 처리. (useFrame으로 처리할 준비)
-      // 타일들도 위치 처리 (useFrame으로 처리할 준비)
-      // useFrame에 사용할 Animation 값 초기화
+      // 타일들도 위치 처리
+      if (confirmTileInfo.position.x === 8.2) {
+        console.log("1, 2, 3 상단 이군요? , 파랑-빨강");
+        if (confirmTileInfo.position.z == -4.1) {
+          // 1번
+          // 1번 인덱스 친구부터해서 +7 위치로 옮기기, 원래 1번 친구는 Drag타일의 정보를 넣기
+          // 마지막 43번 친구는 DragTile Type이 되면 됨
+          setDragTileType(serverTileInfo[43].type);
+          setDragTileDir(serverTileInfo[43].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[8].x,
+              push_spot_coordinates[8].z,
+              push_spot_coordinates[8].y
+            )
+          );
+          // 현재 움직이는 오브젝트들의 Ref를 받아서 애니메이션에서 활용할 예정
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i % 7 === 1 && i !== 1) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i - 7].type,
+                dir: serverTileInfo[i - 7].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[2]);
+          newServerTileInfo[1] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          console.log("before piece", moveObjects);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 1; index < 49; index += 7) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 43) {
+                  return { ...piece, coordinate: 2 };
+                } else {
+                  return { ...piece, coordinate: index + 8 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          // 찾아보자
+          setMoveObjects(newMoveObjects);
+          // console.log(moveObjects,"moveObjects")
+        } else if (confirmTileInfo.position.z == 0) {
+          // 2번
+          setDragTileType(serverTileInfo[45].type);
+          setDragTileDir(serverTileInfo[45].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[7].x,
+              push_spot_coordinates[7].z,
+              push_spot_coordinates[7].y
+            )
+          );
+
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i % 7 === 3 && i !== 3) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i - 7].type,
+                dir: serverTileInfo[i - 7].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[4]);
+          newServerTileInfo[3] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 3; index < 49; index += 7) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 45) {
+                  return { ...piece, coordinate: 4 };
+                } else {
+                  return { ...piece, coordinate: index + 8 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else {
+          // 3번
+          setDragTileType(serverTileInfo[47].type);
+          setDragTileDir(serverTileInfo[47].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[6].x,
+              push_spot_coordinates[6].z,
+              push_spot_coordinates[6].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i % 7 === 5 && i !== 5) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i - 7].type,
+                dir: serverTileInfo[i - 7].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[6]);
+          newServerTileInfo[5] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 5; index < 49; index += 7) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 47) {
+                  return { ...piece, coordinate: 6 };
+                } else {
+                  return { ...piece, coordinate: index + 8 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        }
+      } else if (confirmTileInfo.position.x === -8.2) {
+        console.log("9 , 8 , 7 하단 이군요 ? 노랑-초록");
+        if (confirmTileInfo.position.z === -4.1) {
+          // 9
+          setDragTileType(serverTileInfo[1].type);
+          setDragTileDir(serverTileInfo[1].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[0].x,
+              push_spot_coordinates[0].z,
+              push_spot_coordinates[0].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i % 7 === 1 && i !== 43) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i + 7].type,
+                dir: serverTileInfo[i + 7].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[44]);
+          newServerTileInfo[43] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 43; index > 0; index -= 7) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 1) {
+                  return { ...piece, coordinate: 44 };
+                } else {
+                  return { ...piece, coordinate: index - 6 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else if (confirmTileInfo.position.z === 0) {
+          // 8
+          setDragTileType(serverTileInfo[3].type);
+          setDragTileDir(serverTileInfo[3].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[1].x,
+              push_spot_coordinates[1].z,
+              push_spot_coordinates[1].y
+            )
+          );
+          const newMoveObjects = [];
+          // newMoveObjects.push(gameBoardRef.current[i+1])
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i % 7 === 3 && i !== 45) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i + 7].type,
+                dir: serverTileInfo[i + 7].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[46]);
+          newServerTileInfo[45] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 45; index > 0; index -= 7) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 3) {
+                  return { ...piece, coordinate: 46 };
+                } else {
+                  return { ...piece, coordinate: index - 6 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else {
+          // 7
+          setDragTileType(serverTileInfo[5].type);
+          setDragTileDir(serverTileInfo[5].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[2].x,
+              push_spot_coordinates[2].z,
+              push_spot_coordinates[2].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i % 7 === 5 && i !== 47) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i + 7].type,
+                dir: serverTileInfo[i + 7].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[48]);
+          newServerTileInfo[47] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 47; index > 0; index -= 7) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 5) {
+                  return { ...piece, coordinate: 48 };
+                } else {
+                  return { ...piece, coordinate: index - 6 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        }
+      } else if (confirmTileInfo.position.z === 8.2) {
+        console.log("4, 5, 6 우측 이군요 ? 빨강-초록");
+        if (confirmTileInfo.position.x === 4.1) {
+          //4
+          setDragTileType(serverTileInfo[7].type);
+          setDragTileDir(serverTileInfo[7].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[11].x,
+              push_spot_coordinates[11].z,
+              push_spot_coordinates[11].y
+            )
+          );
+
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i > 6 && i < 13) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i + 1].type,
+                dir: serverTileInfo[i + 1].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[14]);
+          newServerTileInfo[13] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 13; index > 6; index -= 1) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 7) {
+                  return { ...piece, coordinate: 14 };
+                } else {
+                  return { ...piece, coordinate: index };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else if (confirmTileInfo.position.x === 0) {
+          //5
+          setDragTileType(serverTileInfo[21].type);
+          setDragTileDir(serverTileInfo[21].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[10].x,
+              push_spot_coordinates[10].z,
+              push_spot_coordinates[10].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i > 20 && i < 27) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i + 1].type,
+                dir: serverTileInfo[i + 1].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[28]);
+          newServerTileInfo[27] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 27; index > 20; index -= 1) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 21) {
+                  return { ...piece, coordinate: 28 };
+                } else {
+                  return { ...piece, coordinate: index };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else {
+          //6
+          setDragTileType(serverTileInfo[35].type);
+          setDragTileDir(serverTileInfo[35].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[9].x,
+              push_spot_coordinates[9].z,
+              push_spot_coordinates[9].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i > 34 && i < 41) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i + 1].type,
+                dir: serverTileInfo[i + 1].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[42]);
+          newServerTileInfo[41] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 41; index > 34; index -= 1) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 35) {
+                  return { ...piece, coordinate: 42 };
+                } else {
+                  return { ...piece, coordinate: index };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        }
+      } else if (confirmTileInfo.position.z === -8.2) {
+        console.log("10, 11 , 12 좌측 이군요 ?  파랑-노랑");
+        if (confirmTileInfo.position.x === -4.1) {
+          // 10
+          setDragTileType(serverTileInfo[41].type);
+          setDragTileDir(serverTileInfo[41].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[5].x,
+              push_spot_coordinates[5].z,
+              push_spot_coordinates[5].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i > 35 && i < 42) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i - 1].type,
+                dir: serverTileInfo[i - 1].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[36]);
+          newServerTileInfo[35] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 35; index < 42; index += 1) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 41) {
+                  return { ...piece, coordinate: 36 };
+                } else {
+                  return { ...piece, coordinate: index + 2 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else if (confirmTileInfo.position.x === 0) {
+          // 11
+          setDragTileType(serverTileInfo[27].type);
+          setDragTileDir(serverTileInfo[27].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[4].x,
+              push_spot_coordinates[4].z,
+              push_spot_coordinates[4].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i > 21 && i < 28) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i - 1].type,
+                dir: serverTileInfo[i - 1].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[22]);
+          newServerTileInfo[21] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 21; index < 28; index += 1) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 27) {
+                  return { ...piece, coordinate: 22 };
+                } else {
+                  return { ...piece, coordinate: index + 2 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        } else {
+          // 12
+          setDragTileType(serverTileInfo[13].type);
+          setDragTileDir(serverTileInfo[13].dir);
+          setDragTilePosition(
+            new THREE.Vector3(
+              push_spot_coordinates[3].x,
+              push_spot_coordinates[3].z,
+              push_spot_coordinates[3].y
+            )
+          );
+          const newMoveObjects = [];
+          const newServerTileInfo = serverTileInfo.map((tileInfo, i) => {
+            if (i > 7 && i < 14) {
+              newMoveObjects.push(gameBoardRef.current[i + 1]);
+              // 그 라인의 열인경우
+              return {
+                ...tileInfo,
+                type: serverTileInfo[i - 1].type,
+                dir: serverTileInfo[i - 1].dir,
+              };
+            }
+            return tileInfo;
+          });
+          newMoveObjects.push(gameBoardRef.current[8]);
+          newServerTileInfo[7] = {
+            type: confirmTileInfo.type,
+            dir: confirmTileInfo.dir,
+          };
+          // console.log("바꿔봤습니다.", newServerTileInfo);
+          // console.log("마지막 타일은 ? " ,dragTilePosition);
+          setServerTileInfo(newServerTileInfo);
+          // 이제 게임말을 체크해야함
+          const newPieceInfo = piecesInfo.map((piece) => {
+            for (let index = 7; index < 14; index += 1) {
+              if (piece.coordinate - 1 === index) {
+                newMoveObjects.push(piecesRef?.current[piece.key]);
+                if (index === 13) {
+                  return { ...piece, coordinate: 8 };
+                } else {
+                  return { ...piece, coordinate: index + 2 };
+                }
+              }
+            }
+            return piece;
+          });
+          setPiecesInfo(newPieceInfo);
+          setMoveObjects(newMoveObjects);
+        }
+      }
+      // useFrame에 사용할 Animation 값 초기화(useFrame으로 처리할 준비)
+      setObjectMoveDelay(2.05);
     },
   }));
 
@@ -405,6 +1053,7 @@ const GameObejcts = forwardRef((props, ref) => {
     <Suspense fallback={null}>
       {/* {tilesCoordinates} */}
       <GameBoard
+        ref={gameBoardRef}
         server_side_tile_infos={serverTileInfo}
         tile_scale={tile_scale}
       />
@@ -463,25 +1112,20 @@ const GameObejcts = forwardRef((props, ref) => {
             scale: tile_scale,
           })
       }
-      <PieceTest
-        position={[coordinates[0].x, 0.303, coordinates[0].y]}
-        scale={meeple_scale}
-        color="blue"
-      />
-      <PieceTest
-        position={[coordinates[6].x, 0.303, coordinates[6].y]}
-        scale={meeple_scale}
-        color="red"
-      />
-      <PieceTest
-        position={[coordinates[42].x, 0.303, coordinates[42].y]}
-        scale={meeple_scale}
-        color="yellow"
-      />
-      <PieceTest
-        position={[coordinates[48].x, 0.303, coordinates[48].y]}
-        scale={meeple_scale}
-        color="green"
+      {
+        // 타일을 밀었을때 , 튀어나온 드래그 타일
+        turnInfo === 2 &&
+          gen_tile({
+            dir: dragTileDir,
+            position: dragTilePosition,
+            type: dragTileType,
+            scale: tile_scale,
+          })
+      }
+      <Pieces
+        ref={piecesRef}
+        PieceInfo={piecesInfo}
+        MeepleScale={meeple_scale}
       />
     </Suspense>
   );

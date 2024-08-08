@@ -4,17 +4,23 @@ Command: npx gltfjsx@6.4.1 ./public/ITile.glb --transform
 Files: ./public/ITile.glb [5.96KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\ITile-transformed.glb [2.67KB] (55%)
 */
 
-import React, { forwardRef } from "react";
+import React, { useRef,
+  forwardRef,
+  useImperativeHandle, } from "react";
 import { useGLTF, Edges, Html } from "@react-three/drei";
 
 // 타일을 만든다면 , 드래그 되었을때 윤곽선이 나오는 설정을 꼭 해줘야 함
 
-// export const ITile = forwardRef((props, ref) => {
-export function ITile({ isDraged = false, ...props }) {
+// export function ITile({ isDraged = false, ...props }) {
+export const ITile = forwardRef((props, ref) => {
+// const iTileRef = useRef();
+// useImperativeHandle(ref, () => ({
+//   getITile: () => iTileRef.current,
+// }));
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
-
+const {isDraged=false} = props
   return (
-    <group {...props} dispose={null}>
+    <group {...props} ref= {ref} position={props.position} dispose={null}>
       <group>
         <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
           <Edges
@@ -43,24 +49,10 @@ export function ITile({ isDraged = false, ...props }) {
             color={"black"}
           ></Edges>
         </mesh>
-        {/* <Html
-          scale={1}
-          rotation={[Math.PI / 2, 0, 0]}
-          position={[0, 5, 0]}
-          transform
-          occlude
-          style={{
-            opacity: isDraged ? 1 : 0,
-          }}
-        >
-          <div className="annotation">
-            6.550 $ <span style={{ fontSize: "1.5em" }}>🥲</span>
-          </div>
-        </Html> */}
       </group>
     </group>
   );
   // }
-}
+});
 
 useGLTF.preload("/ITile-transformed.glb");

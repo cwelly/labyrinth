@@ -21,7 +21,7 @@ export const ITile = forwardRef((props, ref) => {
 const {isDraged=false} = props
   return (
     <group {...props} ref= {ref} position={props.position} dispose={null}>
-      <group>
+      
         <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
           <Edges
             visible={isDraged}
@@ -49,7 +49,7 @@ const {isDraged=false} = props
             color={"black"}
           ></Edges>
         </mesh>
-      </group>
+     
     </group>
   );
   // }

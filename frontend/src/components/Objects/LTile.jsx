@@ -16,7 +16,7 @@ export const LTile = forwardRef((props, ref) => {
 // }));
   return (
     <group {...props} position={props.position} ref={ref} dispose={null}>
-      <group>
+      
         <mesh geometry={nodes.Cube.geometry} material={materials.floor} />
         <mesh geometry={nodes.Cube_1.geometry} material={materials.outside} />
         <mesh
@@ -27,7 +27,7 @@ export const LTile = forwardRef((props, ref) => {
           geometry={nodes.Cube_3.geometry}
           material={materials.wall_color}
         />
-      </group>
+      
     </group>
   );
 });

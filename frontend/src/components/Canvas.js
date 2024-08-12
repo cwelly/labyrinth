@@ -22,16 +22,25 @@ function Canva() {
   const [tileConfirmButton, setTileConfirmButton] = useState(false);
   // 게임의 현재 상태(턴과는 상관없는 )state
   const [turnInfo,setTurnInfo] = useState(1);
+  // 게임말 확정 버튼
+  const [pieceConfirmButton,setPieceConfirmButton] = useState(false);
   const handleTileConfirm = (boo) => {
     setTileConfirmButton(boo);
   };
+  const [warningPosition  , setWarningPosition] = useState(false);
+
   const handleTilePush= ()=>{
     if(gameObjectRef.current){
       gameObjectRef.current.tilePush();
     }
   }
+  const handlePieceConfirm = ()=>{
+    if(gameObjectRef.current){
+      gameObjectRef.current.pieceConfirm();
+    }
+  }
   const state = {
-    turnInfo ,setTurnInfo,handleTileConfirm,tileConfirmButton
+    turnInfo ,setTurnInfo,handleTileConfirm,tileConfirmButton,pieceConfirmButton,setPieceConfirmButton,warningPosition  , setWarningPosition
   }
 
   return (
@@ -43,7 +52,7 @@ function Canva() {
         ]}
         
       >
-        <UserInterface state={state} handleTilePush={handleTilePush} />
+        <UserInterface state={state} handleTilePush={handleTilePush} handlePieceConfirm={handlePieceConfirm} />
         <Canvas
           camera={{ position: [-15, 10, 0], fov: 60, target: [0, 0, 10] }}
         >

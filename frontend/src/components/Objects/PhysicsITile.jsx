@@ -22,7 +22,6 @@ export const PhysicsITile = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
   const dragTileRef = useRef();
 
-
   useEffect(() => {
     if (dragTileRef.current) {
       dragTileRef.current.customData = {
@@ -60,38 +59,38 @@ export const PhysicsITile = forwardRef((props, ref) => {
     <group
       ref={dragTileRef}
       visible={props.isVisible === true}
+      // position={props.position}
       {...props}
       dispose={null}
     >
-      <group>
-        <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
-          <Edges
-            visible={isDraged}
-            lineWidth={5}
-            scale={1.1}
-            renderOrder={1000}
-            color={"black"}
-          ></Edges>
-        </mesh>
-        <mesh geometry={nodes.Cube_1.geometry} material={materials.outside}>
-          <Edges
-            visible={isDraged}
-            lineWidth={5}
-            scale={1.1}
-            renderOrder={1000}
-            color={"black"}
-          ></Edges>
-        </mesh>
-        <mesh geometry={nodes.Cube_2.geometry} material={materials.wall_color}>
-          <Edges
-            visible={isDraged}
-            lineWidth={5}
-            scale={1.1}
-            renderOrder={1000}
-            color={"black"}
-          ></Edges>
-        </mesh>
-        {/* <RigidBody ref={rigidRef} colliders="cuboid" type="kinematicPosition">
+      <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
+        <Edges
+          visible={isDraged}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={"black"}
+        ></Edges>
+      </mesh>
+      <mesh geometry={nodes.Cube_1.geometry} material={materials.outside}>
+        <Edges
+          visible={isDraged}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={"black"}
+        ></Edges>
+      </mesh>
+      <mesh geometry={nodes.Cube_2.geometry} material={materials.wall_color}>
+        <Edges
+          visible={isDraged}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={"black"}
+        ></Edges>
+      </mesh>
+      {/* <RigidBody ref={rigidRef} colliders="cuboid" type="kinematicPosition">
           <CuboidCollider
             args={[1, 1, 1]}
             onIntersectionEnter={() => {
@@ -102,7 +101,6 @@ export const PhysicsITile = forwardRef((props, ref) => {
             }}
           ></CuboidCollider>
         </RigidBody> */}
-      </group>
     </group>
   );
   // }

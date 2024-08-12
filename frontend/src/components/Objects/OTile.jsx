@@ -16,12 +16,14 @@ export const OTile = forwardRef((props, ref) => {
   // useImperativeHandle(ref, () => ({
   //   getOTile: () => oTileRef.current,
   // }));
+
+
   return (
-    <group {...props } position={props.position} ref={ref} dispose={null}>
+    <group {...props }  position={props.position} ref={ref} dispose={null}>
       <mesh geometry={nodes.flor_tile.geometry} material={materials.PaletteMaterial001}  >
-      <Edges   visible={isDraged} scale={1.5} renderOrder={1000} >
+      {/* <Edges   visible={isDraged} scale={1.5} renderOrder={1000} >
       <meshBasicMaterial transparent color="#333" depthTest={false} />
-      </Edges>
+      </Edges> */}
         </mesh>
     </group>
   )

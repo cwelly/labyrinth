@@ -511,6 +511,7 @@ const GameObejcts = forwardRef((props, ref) => {
         // 다 끝난 경우
         setPieceMoveDelay(0);
         setTurnInfo(3);
+        setPieceConfirmButton(true)
       } else {
         if (pieceMoveDelay < 0) {
           setWay((prev) => prev.slice(1));
@@ -581,9 +582,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // 각 장소마다 겹치는 범위를 확인
           if (item?.getPushSpot() !== undefined) {
             const boxA = new THREE.Box3().setFromObject(item.getPushSpot());
-            const boxB = new THREE.Box3().setFromObject(
-              dragTileRef.current.getDragTile()
-            );
+            const boxB = new THREE.Box3().setFromObject(dragTileRef.current.getDragTile());
             // 겹친다면 겹치는 정도를 확인
             if (boxA.intersectsBox(boxB)) {
               const intersection = new THREE.Box3();
@@ -596,12 +595,12 @@ const GameObejcts = forwardRef((props, ref) => {
                 intersection.getSize(new THREE.Vector3()).y *
                 intersection.getSize(new THREE.Vector3()).z;
 
-              const box1Volume =
+              const dragTileVolume =
                 boxB.getSize(new THREE.Vector3()).x *
                 boxB.getSize(new THREE.Vector3()).y *
                 boxB.getSize(new THREE.Vector3()).z;
 
-              const overlapPercentage = (intersectionVolume / box1Volume) * 100;
+              const overlapPercentage = (intersectionVolume / dragTileVolume) * 100;
               // 일정 수준 이상 들어왔다면?
               if (overlapPercentage > 30) {
                 // 여기서 움직이는 타일은 isVisible=false,
@@ -669,12 +668,6 @@ const GameObejcts = forwardRef((props, ref) => {
       />
     );
   });
-  // useEffect(() => {
-  //   console.log("타일 위치가 바뀌었습니다!", serverTileInfo);
-  //   // 움직일 수 있는 칸 계산
-  //   calculateAvailableCoordinates(serverTileInfo);
-  // }, [serverTileInfo]);
-
   // GameObject와 UI 를 연결하는 로직
   useImperativeHandle(ref, () => ({
     // 타일을 확정하고 미는 로직
@@ -1280,6 +1273,7 @@ const GameObejcts = forwardRef((props, ref) => {
 
       setObjectMoveDelay(2.05);
     },
+    // 게임말의 위치를 확정하고 다음 상태로 넘어가는 로직
     pieceConfirm() {
       console.log(myPieceInfo, "여기 맞죠?");
       setTurnInfo(1);
@@ -1429,6 +1423,7 @@ const GameObejcts = forwardRef((props, ref) => {
             if (path.length > 0) {
               setWay(path);
               setPieceMoveDelay(2.05);
+              setPieceConfirmButton(false)
               setTurnInfo(4);
             }
             // console.log(path)

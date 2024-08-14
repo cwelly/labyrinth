@@ -4,29 +4,25 @@ Command: npx gltfjsx@6.4.1 oTile.glb --transform
 Files: oTile.glb [7.45KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\src\assets\oTile-transformed.glb [1.96KB] (74%)
 */
 
-import React , { useRef,
-  forwardRef,
-  useImperativeHandle, } from 'react'
-import { useGLTF,Edges } from '@react-three/drei'
+import React, { useRef, forwardRef, useImperativeHandle } from "react";
+import { useGLTF, Edges, Text3D, Center } from "@react-three/drei";
+import { Vector3 } from "three";
+import { useFrame } from "@react-three/fiber";
+import Target from "./Target";
 export const OTile = forwardRef((props, ref) => {
-// export function OTile({isDraged=false,...props}) {
-  const {isDraged=false} = props
-  const { nodes, materials } = useGLTF('/oTile-transformed.glb')
-  // const oTileRef = useRef();
-  // useImperativeHandle(ref, () => ({
-  //   getOTile: () => oTileRef.current,
-  // }));
-
-
+  // export function OTile({isDraged=false,...props}) {
+  const { isDraged = false } = props;
+  const { nodes, materials } = useGLTF("/oTile-transformed.glb");
   return (
-    <group {...props }  position={props.position} ref={ref} dispose={null}>
-      <mesh geometry={nodes.flor_tile.geometry} material={materials.PaletteMaterial001}  >
-      {/* <Edges   visible={isDraged} scale={1.5} renderOrder={1000} >
-      <meshBasicMaterial transparent color="#333" depthTest={false} />
-      </Edges> */}
-        </mesh>
+    <group {...props} position={props.position} ref={ref} dispose={null}>
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}></Target>}
+      <mesh
+        geometry={nodes.flor_tile.geometry}
+        material={materials.PaletteMaterial001}
+      >
+      </mesh>
     </group>
-  )
-})
+  );
+});
 
-useGLTF.preload('/oTile-transformed.glb')
+useGLTF.preload("/oTile-transformed.glb");

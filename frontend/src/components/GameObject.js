@@ -16,6 +16,7 @@ import { DragControls, useKeyboardControls } from "@react-three/drei";
 import PushSpot from "./Objects/PushSpot.jsx";
 import { PhysicsITile } from "./Objects/PhysicsITile.jsx";
 import * as THREE from "three";
+import { DragedTile } from "./Objects/DragedTile.js";
 
 // 1. 움직이는 타일이 바닥 밑으로 안내려가게
 // 2. 구체가 아니라 탑뷰로 봤을때 엄청 크게하기
@@ -41,52 +42,52 @@ let push_spot_coordinates = [
 let server_side_tile_infos = [
   { type: "L", dir: 0 },
   { type: "L", dir: 1 },
-  { type: "O", dir: 0 },
+  { type: "O", dir: 0, target: "A" },
   { type: "I", dir: 0 },
-  { type: "O", dir: 0 },
+  { type: "O", dir: 0, target: "B" },
   { type: "I", dir: 0 },
   { type: "L", dir: 1 },
   { type: "L", dir: 0 },
-  { type: "O", dir: 2 },
-  { type: "L", dir: 1 },
+  { type: "O", dir: 2, target: "C" },
+  { type: "L", dir: 1, target: "D" },
   { type: "I", dir: 1 },
   { type: "L", dir: 3 },
-  { type: "O", dir: 2 },
-  { type: "O", dir: 2 },
-  { type: "O", dir: 3 },
-  { type: "L", dir: 0 },
-  { type: "O", dir: 3 },
+  { type: "O", dir: 2, target: "E" },
+  { type: "O", dir: 2, target: "F" },
+  { type: "O", dir: 3, target: "G" },
+  { type: "L", dir: 0, target: "H" },
+  { type: "O", dir: 3, target: "I" },
+  { type: "I", dir: 0, target: "J" },
+  { type: "O", dir: 0, target: "K" },
   { type: "I", dir: 0 },
-  { type: "O", dir: 0 },
-  { type: "I", dir: 0 },
-  { type: "O", dir: 1 },
+  { type: "O", dir: 1, target: "L" },
   { type: "L", dir: 3 },
   { type: "L", dir: 1 },
-  { type: "L", dir: 1 },
+  { type: "L", dir: 1, target: "M" },
   { type: "L", dir: 0 },
-  { type: "O", dir: 0 },
+  { type: "O", dir: 0, target: "N" },
   { type: "L", dir: 1 },
   { type: "I", dir: 1 },
-  { type: "O", dir: 3 },
+  { type: "O", dir: 3, target: "O" },
   { type: "I", dir: 0 },
-  { type: "O", dir: 2 },
+  { type: "O", dir: 2, target: "P" },
   { type: "I", dir: 1 },
-  { type: "O", dir: 1 },
+  { type: "O", dir: 1, target: "Q" },
   { type: "L", dir: 3 },
-  { type: "O", dir: 1 },
+  { type: "O", dir: 1, target: "R" },
   { type: "L", dir: 3 },
   { type: "I", dir: 0 },
   { type: "L", dir: 1 },
-  { type: "L", dir: 0 },
+  { type: "L", dir: 0, target: "S" },
   { type: "I", dir: 1 },
-  { type: "L", dir: 0 },
-  { type: "L", dir: 0 },
+  { type: "L", dir: 0, target: "T" },
+  { type: "L", dir: 0, target: "U" },
   { type: "L", dir: 3 },
   { type: "I", dir: 0 },
-  { type: "O", dir: 2 },
+  { type: "O", dir: 2, target: "V" },
   { type: "I", dir: 0 },
-  { type: "O", dir: 2 },
-  { type: "O", dir: 2 },
+  { type: "O", dir: 2, target: "W" },
+  { type: "O", dir: 2, target: "X" },
   { type: "L", dir: 2 },
 ];
 let testGamePieceInfo = [
@@ -140,6 +141,7 @@ const GameBoard = forwardRef((props, ref) => {
       ...coordinate,
       tile_type: server_side_tile_infos[coordinate.key - 1].type,
       tile_dir: server_side_tile_infos[coordinate.key - 1].dir,
+      tile_target: server_side_tile_infos[coordinate.key - 1].target,
     }))
     .map((temp_tile) => {
       if (temp_tile.tile_type === "L") {
@@ -152,7 +154,10 @@ const GameBoard = forwardRef((props, ref) => {
             position={[temp_tile.x, temp_tile.z, temp_tile.y]}
             rotation={clock_way_rotate(temp_tile.tile_dir)}
             scale={tile_scale}
-            userData={{ coordinate: temp_tile.key - 1 }}
+            userData={{
+              coordinate: temp_tile.key - 1,
+              target: temp_tile.tile_target,
+            }}
             onClick={handlePieceMove}
           />
         );
@@ -166,7 +171,10 @@ const GameBoard = forwardRef((props, ref) => {
             position={[temp_tile.x, temp_tile.z, temp_tile.y]}
             rotation={clock_way_rotate(temp_tile.tile_dir)}
             scale={tile_scale}
-            userData={{ coordinate: temp_tile.key - 1 }}
+            userData={{
+              coordinate: temp_tile.key - 1,
+              target: temp_tile.tile_target,
+            }}
             onClick={handlePieceMove}
           />
         );
@@ -180,7 +188,10 @@ const GameBoard = forwardRef((props, ref) => {
             position={[temp_tile.x, temp_tile.z, temp_tile.y]}
             rotation={clock_way_rotate(temp_tile.tile_dir)}
             scale={tile_scale}
-            userData={{ coordinate: temp_tile.key - 1 }}
+            userData={{
+              coordinate: temp_tile.key - 1,
+              target: temp_tile.tile_target,
+            }}
             onClick={handlePieceMove}
           />
         );
@@ -267,7 +278,11 @@ const GameObejcts = forwardRef((props, ref) => {
   // 게임말의 정보를 서버에서 받아오는 정보
   const [piecesInfo, setPiecesInfo] = new useState(testGamePieceInfo);
   // 타일 확정후 , 움직이는 오브젝트들을 저장하는 state
-  const [moveObjects, setMoveObjects] = useState({ tile: [], piece: [] });
+  const [moveObjects, setMoveObjects] = useState({
+    tile: [],
+    piece: [],
+    target: [],
+  });
   // 드래그 타일의 타입을 정하는 state
   const [dragTileType, setDragTileType] = useState("I");
   // 드래그 타일의 회전값을 제어하기 위한 state
@@ -511,7 +526,7 @@ const GameObejcts = forwardRef((props, ref) => {
         // 다 끝난 경우
         setPieceMoveDelay(0);
         setTurnInfo(3);
-        setPieceConfirmButton(true)
+        setPieceConfirmButton(true);
       } else {
         if (pieceMoveDelay < 0) {
           setWay((prev) => prev.slice(1));
@@ -582,7 +597,9 @@ const GameObejcts = forwardRef((props, ref) => {
           // 각 장소마다 겹치는 범위를 확인
           if (item?.getPushSpot() !== undefined) {
             const boxA = new THREE.Box3().setFromObject(item.getPushSpot());
-            const boxB = new THREE.Box3().setFromObject(dragTileRef.current.getDragTile());
+            const boxB = new THREE.Box3().setFromObject(
+              dragTileRef.current.getDragTile()
+            );
             // 겹친다면 겹치는 정도를 확인
             if (boxA.intersectsBox(boxB)) {
               const intersection = new THREE.Box3();
@@ -600,7 +617,8 @@ const GameObejcts = forwardRef((props, ref) => {
                 boxB.getSize(new THREE.Vector3()).y *
                 boxB.getSize(new THREE.Vector3()).z;
 
-              const overlapPercentage = (intersectionVolume / dragTileVolume) * 100;
+              const overlapPercentage =
+                (intersectionVolume / dragTileVolume) * 100;
               // 일정 수준 이상 들어왔다면?
               if (overlapPercentage > 30) {
                 // 여기서 움직이는 타일은 isVisible=false,
@@ -655,6 +673,7 @@ const GameObejcts = forwardRef((props, ref) => {
   // 차례정보를 따라가는 useEffect
   useEffect(() => {
     console.log("차례가 바뀌었습니다 !", turnInfo, isTurn);
+    console.log("현재 보드 상태입니다", gameBoardRef.current);
   }, [turnInfo]);
   // pushSpot을 만드는 컴포넌트로 빼자
   const pushTileCoordinates = push_spot_coordinates.map((coordinate) => {
@@ -701,6 +720,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i - 7].type,
                 dir: serverTileInfo[i - 7].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i - 7].target
+                  ? serverTileInfo[i - 7].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1423,7 +1446,7 @@ const GameObejcts = forwardRef((props, ref) => {
             if (path.length > 0) {
               setWay(path);
               setPieceMoveDelay(2.05);
-              setPieceConfirmButton(false)
+              setPieceConfirmButton(false);
               setTurnInfo(4);
             }
             // console.log(path)
@@ -1517,21 +1540,31 @@ const GameObejcts = forwardRef((props, ref) => {
                 confirmTileInfo.position.z
               );
 
-              console.log(translationMatrix, "현재값");
+              console.log(dragTileRef.current.getDragTile(), "현재값");
               setDragMatrix(translationMatrix);
               // setDragTilePosition(new THREE.Vector3(confirmTileInfo.position.x,confirmTileInfo.position.y,confirmTileInfo.position.z));
               handleTileConfirm(true);
             }
           }}
         >
-          <PhysicsITile
+          {/* <PhysicsITile
             ref={dragTileRef}
             isDraged={isDraged}
             position={dragTilePosition}
             rotation={clock_way_rotate(dragTileDir)}
             scale={tile_scale}
             isVisible={confirmTileInfo.isVisible}
-          />
+            type={confirmTileInfo.type}
+          /> */}
+          <DragedTile
+            ref={dragTileRef}
+            isDraged={isDraged}
+            position={dragTilePosition}
+            rotation={clock_way_rotate(dragTileDir)}
+            scale={tile_scale}
+            isVisible={confirmTileInfo.isVisible}
+            type={dragTileType}
+          ></DragedTile>
         </DragControls>
       )}
 

@@ -51,23 +51,14 @@ function Canva() {
   };
 
   return (
-    <KeyboardControls
-      map={[
-        { name: "clock", keys: ["r", "R"], up: true },
-        { name: "antiClock", keys: ["q", "Q"], up: true },
-      ]}
-    >
+    <KeyboardControls map={[{ name: "clock", keys: ["r", "R"], up: true },{ name: "antiClock", keys: ["q", "Q"], up: true },]} >
       <UserInterface state={state} handleTilePush={handleTilePush} handlePieceConfirm={handlePieceConfirm} />
       <Canvas           camera={{ position: [-15, 10, 0], fov: 60, target: [0, 0, 10] }}>
         <Camera ref={cameraRef} />
         <ambientLight intensity={0.9} />
         <directionalLight position={[10, 10, 10]} intensity={1} />
         <Suspense>
-          <GameObejcts
-            ref={gameObjectRef}
-            cameraRef={cameraRef}
-            state={state}
-          />
+          <GameObejcts ref={gameObjectRef} cameraRef={cameraRef} state={state}/>
         </Suspense>
       </Canvas>
     </KeyboardControls>

@@ -17,17 +17,17 @@ const Camera = forwardRef((props, ref) => {
   };
 
   // 초기에 카메라가 바라볼수 있는 위치를 제어하는 메소드
-  // useEffect(() => {
-  //   if (cameraControlsRef !== undefined) {
-  //     cameraControlsRef.current.setBoundary(
-  //       new THREE.Box3(
-  //         new THREE.Vector3(-8.0, 0, -8.0),
-  //         new THREE.Vector3(8.0, 2, 8.0)
-  //       )
-  //     );
-  //   }
-  // }, []);
-  //setBoundary={new THREE.Box3(new THREE.Vector3(-8.0,0,-8.0),new THREE.Vector3(8.0,2,8.0))}
+  useEffect(() => {
+    if (cameraControlsRef !== undefined) {
+      cameraControlsRef.current.setBoundary(
+        new THREE.Box3(
+          new THREE.Vector3(-8.0, 0, -8.0),
+          new THREE.Vector3(8.0, 2, 8.0)
+        )
+      );
+    }
+  }, []);
+  // setBoundary={new THREE.Box3(new THREE.Vector3(-8.0,0,-8.0),new THREE.Vector3(8.0,2,8.0))}
   useImperativeHandle(ref, () => ({
     getCamera: () => cameraControlsRef.current,
   }));
@@ -35,10 +35,10 @@ const Camera = forwardRef((props, ref) => {
     <>
       <CameraControls
         ref={cameraControlsRef}
-        // minPolarAngle={0}
-        // maxPolarAngle={Math.PI / 2}
-        // minDistance={1}
-        // maxDistance={30}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI / 2}
+        minDistance={1}
+        maxDistance={30}
       />
     </>
   );

@@ -4,52 +4,49 @@ Command: npx gltfjsx@6.4.1 ./public/ITile.glb --transform
 Files: ./public/ITile.glb [5.96KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\ITile-transformed.glb [2.67KB] (55%)
 */
 
-import React, { useRef,
-  forwardRef,
-  useImperativeHandle, } from "react";
-import { useGLTF, Edges, Html } from "@react-three/drei";
+import React, { useRef, forwardRef, useImperativeHandle } from "react";
+import { useGLTF, Edges, Html, Text3D, Center } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { Vector3 } from "three";
+import Target from "./Target";
 
 // 타일을 만든다면 , 드래그 되었을때 윤곽선이 나오는 설정을 꼭 해줘야 함
 
 // export function ITile({ isDraged = false, ...props }) {
 export const ITile = forwardRef((props, ref) => {
-// const iTileRef = useRef();
-// useImperativeHandle(ref, () => ({
-//   getITile: () => iTileRef.current,
-// }));
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
-const {isDraged=false} = props
+  const { isDraged = false } = props;
   return (
-    <group {...props} ref= {ref} position={props.position} dispose={null}>
+    <group {...props} ref={ref} position={props.position} dispose={null}>
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}></Target>}
       
-        <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
-          <Edges
-            visible={isDraged}
-            lineWidth={5}
-            scale={1.1}
-            renderOrder={1000}
-            color={"black"}
-          ></Edges>
-        </mesh>
-        <mesh geometry={nodes.Cube_1.geometry} material={materials.outside}>
-          <Edges
-            visible={isDraged}
-            lineWidth={5}
-            scale={1.1}
-            renderOrder={1000}
-            color={"black"}
-          ></Edges>
-        </mesh>
-        <mesh geometry={nodes.Cube_2.geometry} material={materials.wall_color}>
-          <Edges
-            visible={isDraged}
-            lineWidth={5}
-            scale={1.1}
-            renderOrder={1000}
-            color={"black"}
-          ></Edges>
-        </mesh>
-     
+      <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
+        <Edges
+          visible={isDraged}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={"black"}
+        ></Edges>
+      </mesh>
+      <mesh geometry={nodes.Cube_1.geometry} material={materials.outside}>
+        <Edges
+          visible={isDraged}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={"black"}
+        ></Edges>
+      </mesh>
+      <mesh geometry={nodes.Cube_2.geometry} material={materials.wall_color}>
+        <Edges
+          visible={isDraged}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={"black"}
+        ></Edges>
+      </mesh>
     </group>
   );
   // }

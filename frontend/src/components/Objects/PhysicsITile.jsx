@@ -59,7 +59,6 @@ export const PhysicsITile = forwardRef((props, ref) => {
     <group
       ref={dragTileRef}
       visible={props.isVisible === true}
-      // position={props.position}
       {...props}
       dispose={null}
     >
@@ -90,17 +89,6 @@ export const PhysicsITile = forwardRef((props, ref) => {
           color={"black"}
         ></Edges>
       </mesh>
-      {/* <RigidBody ref={rigidRef} colliders="cuboid" type="kinematicPosition">
-          <CuboidCollider
-            args={[1, 1, 1]}
-            onIntersectionEnter={() => {
-              console.log("come in!");
-            }}
-            onCollisionEnter={() => {
-              console.log("come in!");
-            }}
-          ></CuboidCollider>
-        </RigidBody> */}
     </group>
   );
   // }

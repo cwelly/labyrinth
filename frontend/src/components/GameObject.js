@@ -135,7 +135,7 @@ const Pieces = forwardRef((props, ref) => {
 
 // 서버에서 받은 자료를 기반으로 리턴할 메소드까지 계산하는 메소드
 const GameBoard = forwardRef((props, ref) => {
-  const { server_side_tile_infos, tile_scale, handlePieceMove } = props;
+  const { server_side_tile_infos, tile_scale, handlePieceMove,targetAnimations } = props;
   return coordinates
     .map((coordinate) => ({
       ...coordinate,
@@ -159,6 +159,7 @@ const GameBoard = forwardRef((props, ref) => {
               target: temp_tile.tile_target,
             }}
             onClick={handlePieceMove}
+            // targetAnimation={targetAnimations[index]}
           />
         );
       } else if (temp_tile.tile_type === "I") {
@@ -176,6 +177,7 @@ const GameBoard = forwardRef((props, ref) => {
               target: temp_tile.tile_target,
             }}
             onClick={handlePieceMove}
+            // targetAnimation={targetAnimations[index]}
           />
         );
       } else {
@@ -193,6 +195,7 @@ const GameBoard = forwardRef((props, ref) => {
               target: temp_tile.tile_target,
             }}
             onClick={handlePieceMove}
+            // targetAnimation={targetAnimations[index]}
           />
         );
       }
@@ -284,8 +287,8 @@ const GameObejcts = forwardRef((props, ref) => {
     target: [],
   });
   // 목표target이 움직일지를 결정하는 state
-  const [targetAnimations, setTargetAnimations] = useState(new Array(49).fill(""));
-
+  // const [targetAnimations, setTargetAnimations] = useState(new Array(49).fill(""));
+  // const targetAnimationss = new Array(49).fill("");
   // 드래그 타일의 타겟을 정하는 state
   const [dragTileTarget , setDragTileTarget] = useState();
   // 드래그 타일의 타입을 정하는 state
@@ -310,8 +313,6 @@ const GameObejcts = forwardRef((props, ref) => {
   useFrame((state, delta) => {
     // 사용자의 입력 대입
     const { clock, antiClock } = get();
-    // console.log( dragTileRef?.current?.getDragTile())
-    // console.log(dragTilePosition)
     // 타일 애니메이션 체크
     if (objectMoveDelay !== 0) {
       // 종료조건
@@ -547,8 +548,15 @@ const GameObejcts = forwardRef((props, ref) => {
                   : piece
               )
             );
-            if (gameBoardRef.current) {
+            // 게임말이 target에 접근할때 
+            // target 을 올려보낸다.
+            if (gameBoardRef.current&&gameBoardRef.current[myPieceInfo.coordinate + 1].userData.target!==undefined) {
               console.log(gameBoardRef.current[myPieceInfo.coordinate + 1].userData,"이동 시키는 좌표의 정보입니다.")
+              // setTargetAnimations(prevArray=>
+              //   prevArray.map((item,idx)=>{
+              //   return (idx===myPieceInfo.coordinate) ? "up" :item;
+              //   })
+              // )
             }
           }
           // delay만큼 이동 시킨값으로 표현
@@ -642,6 +650,7 @@ const GameObejcts = forwardRef((props, ref) => {
                   },
                   // type: dragTileRef.current.getDragTile().customData.type,
                   type: dragTileType,
+                  target : dragTileTarget,
                 });
               } else {
                 setConfirmTileInfo({
@@ -711,6 +720,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 마지막 43번 친구는 DragTile Type이 되면 됨
           setDragTileType(serverTileInfo[43].type);
           setDragTileDir(serverTileInfo[43].dir);
+          //추가
+          setDragTileTarget(serverTileInfo[43].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[8].x + 2.05,
@@ -740,6 +751,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[1] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
@@ -763,6 +775,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 2번
           setDragTileType(serverTileInfo[45].type);
           setDragTileDir(serverTileInfo[45].dir);
+          //추가
+          setDragTileTarget(serverTileInfo[45].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[7].x + 2.05,
@@ -780,6 +794,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i - 7].type,
                 dir: serverTileInfo[i - 7].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i - 7].target
+                  ? serverTileInfo[i - 7].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -788,6 +806,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[3] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -812,6 +831,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 3번
           setDragTileType(serverTileInfo[47].type);
           setDragTileDir(serverTileInfo[47].dir);
+          //target
+          setDragTileTarget(serverTileInfo[47].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[6].x + 2.05,
@@ -828,6 +849,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i - 7].type,
                 dir: serverTileInfo[i - 7].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i - 7].target
+                  ? serverTileInfo[i - 7].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -836,6 +861,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[5] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -863,6 +889,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 9
           setDragTileType(serverTileInfo[1].type);
           setDragTileDir(serverTileInfo[1].dir);
+          //target
+          setDragTileTarget(serverTileInfo[1].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[0].x - 2.05,
@@ -879,6 +907,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i + 7].type,
                 dir: serverTileInfo[i + 7].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i + 7].target
+                  ? serverTileInfo[i + 7].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -887,6 +919,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[43] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -911,6 +944,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 8
           setDragTileType(serverTileInfo[3].type);
           setDragTileDir(serverTileInfo[3].dir);
+          //target
+          setDragTileTarget(serverTileInfo[3].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[1].x - 2.05,
@@ -927,6 +962,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i + 7].type,
                 dir: serverTileInfo[i + 7].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i + 7].target
+                  ? serverTileInfo[i + 7].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -935,6 +974,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[45] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -959,6 +999,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 7
           setDragTileType(serverTileInfo[5].type);
           setDragTileDir(serverTileInfo[5].dir);
+          //target
+          setDragTileTarget(serverTileInfo[5].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[2].x - 2.05,
@@ -975,6 +1017,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i + 7].type,
                 dir: serverTileInfo[i + 7].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i + 7].target
+                  ? serverTileInfo[i + 7].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -983,6 +1029,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[47] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1010,6 +1057,8 @@ const GameObejcts = forwardRef((props, ref) => {
           //4
           setDragTileType(serverTileInfo[7].type);
           setDragTileDir(serverTileInfo[7].dir);
+          //target
+          setDragTileTarget(serverTileInfo[7].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[11].x,
@@ -1027,6 +1076,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i + 1].type,
                 dir: serverTileInfo[i + 1].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i + 1].target
+                  ? serverTileInfo[i + 1].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1035,6 +1088,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[13] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1059,6 +1113,8 @@ const GameObejcts = forwardRef((props, ref) => {
           //5
           setDragTileType(serverTileInfo[21].type);
           setDragTileDir(serverTileInfo[21].dir);
+          //target
+          setDragTileTarget(serverTileInfo[21].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[10].x,
@@ -1075,6 +1131,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i + 1].type,
                 dir: serverTileInfo[i + 1].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i + 1].target
+                  ? serverTileInfo[i + 1].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1083,6 +1143,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[27] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1107,6 +1168,8 @@ const GameObejcts = forwardRef((props, ref) => {
           //6
           setDragTileType(serverTileInfo[35].type);
           setDragTileDir(serverTileInfo[35].dir);
+          //target
+          setDragTileTarget(serverTileInfo[35].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[9].x,
@@ -1123,6 +1186,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i + 1].type,
                 dir: serverTileInfo[i + 1].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i + 1].target
+                  ? serverTileInfo[i + 1].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1131,6 +1198,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[41] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1158,6 +1226,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 10
           setDragTileType(serverTileInfo[41].type);
           setDragTileDir(serverTileInfo[41].dir);
+          //target
+          setDragTileTarget(serverTileInfo[41].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[5].x,
@@ -1174,6 +1244,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i - 1].type,
                 dir: serverTileInfo[i - 1].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i - 1].target
+                  ? serverTileInfo[i - 1].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1182,6 +1256,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[35] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1206,6 +1281,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 11
           setDragTileType(serverTileInfo[27].type);
           setDragTileDir(serverTileInfo[27].dir);
+          //target
+          setDragTileTarget(serverTileInfo[27].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[4].x,
@@ -1222,6 +1299,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i - 1].type,
                 dir: serverTileInfo[i - 1].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i - 1].target
+                  ? serverTileInfo[i - 1].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1230,6 +1311,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[21] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1254,6 +1336,8 @@ const GameObejcts = forwardRef((props, ref) => {
           // 12
           setDragTileType(serverTileInfo[13].type);
           setDragTileDir(serverTileInfo[13].dir);
+          //target
+          setDragTileTarget(serverTileInfo[13].target);
           setDragTilePosition(
             new THREE.Vector3(
               push_spot_coordinates[3].x,
@@ -1270,6 +1354,10 @@ const GameObejcts = forwardRef((props, ref) => {
                 ...tileInfo,
                 type: serverTileInfo[i - 1].type,
                 dir: serverTileInfo[i - 1].dir,
+                // 여기에 target을 추가
+                target: serverTileInfo[i - 1].target
+                  ? serverTileInfo[i - 1].target
+                  : undefined,
               };
             }
             return tileInfo;
@@ -1278,6 +1366,7 @@ const GameObejcts = forwardRef((props, ref) => {
           newServerTileInfo[7] = {
             type: confirmTileInfo.type,
             dir: confirmTileInfo.dir,
+            target:confirmTileInfo.target,
           };
           // console.log("바꿔봤습니다.", newServerTileInfo);
           // console.log("마지막 타일은 ? " ,dragTilePosition);
@@ -1521,6 +1610,8 @@ const GameObejcts = forwardRef((props, ref) => {
         server_side_tile_infos={serverTileInfo}
         tile_scale={tile_scale}
         handlePieceMove={isTurn && turnInfo === 3 ? handlePieceMove : undefined}
+        // target의 애니메이션을 다룰 state
+        // targetAnimations={targetAnimations}
       />
       {turnInfo === 1 && pushTileCoordinates}
       {turnInfo === 1 && (

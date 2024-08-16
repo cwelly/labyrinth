@@ -5,6 +5,7 @@ import { Vector3 } from "three";
 function Target(props) {
   const {targetAnimation}=props
   const [movementAmount,setMovementAmount] = useState(0);
+  const maxHeight=20;
   const textRef = useRef();
   const targetRef = useRef();
   // Target mesh에 대한 raycast를 비활성화
@@ -18,13 +19,13 @@ function Target(props) {
       targetRef.current.rotation.y += 0.01;
       // console.log(targetRef.current.position,"현재 포지션")
       // state의 상태에 따라 애니메이션 실행
-      if(targetAnimation==="up"&& movementAmount<5){
-        if(movementAmount+delta>5){
-          targetRef.current.position.y =movementAmount;
-          setMovementAmount(5)
+      if(targetAnimation==="up"&& movementAmount<maxHeight){
+        if(movementAmount+delta>maxHeight){
+          targetRef.current.position.y =maxHeight;
+          setMovementAmount(maxHeight)
         }
         else{
-          targetRef.current.position.y =0-(movementAmount+delta);
+          targetRef.current.position.y =(movementAmount+delta*100);
           setMovementAmount(movementAmount+delta);
         }
       }

@@ -4,7 +4,7 @@ Command: npx gltfjsx@6.4.1 ./public/ITile.glb --transform
 Files: ./public/ITile.glb [5.96KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\ITile-transformed.glb [2.67KB] (55%)
 */
 
-import React, { useRef, forwardRef, useImperativeHandle } from "react";
+import React, { useRef, forwardRef, useImperativeHandle, useState } from "react";
 import { useGLTF, Edges, Html, Text3D, Center } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Vector3 } from "three";
@@ -16,9 +16,13 @@ import Target from "./Target";
 export const ITile = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
   const { isDraged = false } = props;
+  const [targetAnimation,setTargetAnimation] =useState("");
+  if(props.targetAnimation!==undefined){
+    setTargetAnimation(props.targetAnimation);
+  }
   return (
     <group {...props} ref={ref} position={props.position} dispose={null}>
-      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}   ></Target>}
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={ targetAnimation}   ></Target>}
       
       <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
         <Edges

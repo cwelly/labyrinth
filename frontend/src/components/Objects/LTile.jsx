@@ -4,7 +4,7 @@ Command: npx gltfjsx@6.4.1 LTile.glb --transform
 Files: LTile.glb [7.43KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\src\assets\LTile-transformed.glb [3.46KB] (53%)
 */
 
-import React, { useRef, forwardRef, useImperativeHandle } from "react";
+import React, { useRef, forwardRef, useImperativeHandle, useState } from "react";
 import { useGLTF, Text, Text3D, Center } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Vector3 } from "three";
@@ -14,11 +14,15 @@ export const LTile = forwardRef((props, ref) => {
   const { isDraged = false } = props;
   const { nodes, materials } = useGLTF("/LTile-transformed.glb");
   const targetRef = useRef();
+  const [targetAnimation,setTargetAnimation] =useState("");
+  if(props.targetAnimation!==undefined){
+    setTargetAnimation(props.targetAnimation);
+  }
 
 
   return (
     <group {...props} position={props.position} ref={ref} dispose={null}>
-      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}  ></Target>}
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={targetAnimation}  ></Target>}
       
       <mesh geometry={nodes.Cube.geometry} material={materials.floor} />
       <mesh geometry={nodes.Cube_1.geometry} material={materials.outside} />

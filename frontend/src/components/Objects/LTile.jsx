@@ -18,7 +18,7 @@ export const LTile = forwardRef((props, ref) => {
 
   return (
     <group {...props} position={props.position} ref={ref} dispose={null}>
-      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}></Target>}
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}  ></Target>}
       
       <mesh geometry={nodes.Cube.geometry} material={materials.floor} />
       <mesh geometry={nodes.Cube_1.geometry} material={materials.outside} />

@@ -18,7 +18,7 @@ export const ITile = forwardRef((props, ref) => {
   const { isDraged = false } = props;
   return (
     <group {...props} ref={ref} position={props.position} dispose={null}>
-      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}></Target>}
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}   ></Target>}
       
       <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
         <Edges

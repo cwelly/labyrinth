@@ -15,7 +15,7 @@ export const OTile = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/oTile-transformed.glb");
   return (
     <group {...props} position={props.position} ref={ref} dispose={null}>
-      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}></Target>}
+      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale}   ></Target>}
       <mesh
         geometry={nodes.flor_tile.geometry}
         material={materials.PaletteMaterial001}

@@ -20,6 +20,11 @@ export const ITile = forwardRef((props, ref) => {
   if(props.targetAnimation!==undefined){
     setTargetAnimation(props.targetAnimation);
   }
+  // useImperativeHandle(ref , ()=>({
+  //   goUp() {} ,
+  //   goDown(){},
+  // }));
+
   return (
     <group {...props} ref={ref} position={props.position} dispose={null}>
       {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={ targetAnimation}   ></Target>}

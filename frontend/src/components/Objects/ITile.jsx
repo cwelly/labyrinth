@@ -17,16 +17,15 @@ export const ITile = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
   const { isDraged = false } = props;
   const [targetAnimation,setTargetAnimation] =useState("");
-  if(props.targetAnimation!==undefined){
-    setTargetAnimation(props.targetAnimation);
-  }
-  // useImperativeHandle(ref , ()=>({
-  //   goUp() {} ,
-  //   goDown(){},
-  // }));
+  const tileRef=useRef();
+  useImperativeHandle(ref, () => ({
+    getTile: () => tileRef.current,
+    setAnimation: (str)=>setTargetAnimation(str),
+  }));
 
   return (
-    <group {...props} ref={ref} position={props.position} dispose={null}>
+    <group {...props} ref={tileRef} position={props.position} dispose={null}>
+      {/* <axesHelper scale={2} position={[0, 2, 0]}></axesHelper> */}
       {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={ targetAnimation}   ></Target>}
       
       <mesh geometry={nodes.Cube.geometry} material={materials.floor}>

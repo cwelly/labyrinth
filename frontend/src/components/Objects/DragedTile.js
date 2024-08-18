@@ -13,7 +13,7 @@ export const DragedTile = forwardRef((props, ref) => {
   const dragTileRef = useRef();
   const { position, rotation, scale, isVisible, target } = props;
   useImperativeHandle(ref, () => ({
-    getDragTile: () => dragTileRef.current,
+    getDragTile: () => dragTileRef.current.getTile(),
     updatePosition: (confirmTileInfo) => {
       if (dragTileRef.current) {
         const newPosition = new THREE.Vector3(

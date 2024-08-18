@@ -14,11 +14,14 @@ export const OTile = forwardRef((props, ref) => {
   const { isDraged = false } = props;
   const { nodes, materials } = useGLTF("/oTile-transformed.glb");
   const [targetAnimation,setTargetAnimation] =useState("");
-  if(props.targetAnimation!==undefined){
-    setTargetAnimation(props.targetAnimation);
-  }
+  const tileRef=useRef();
+  useImperativeHandle(ref, () => ({
+    getTile: () => tileRef.current,
+    setAnimation: (str)=>setTargetAnimation(str),
+  }));
   return (
-    <group {...props} position={props.position} ref={ref} dispose={null}>
+    <group {...props} position={props.position} ref={tileRef} dispose={null}>
+      {/* <axesHelper scale={2} position={[0, 2, 0]}></axesHelper> */}
       {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={ targetAnimation}   ></Target>}
       <mesh
         geometry={nodes.flor_tile.geometry}

@@ -15,15 +15,16 @@ export const LTile = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/LTile-transformed.glb");
   const targetRef = useRef();
   const [targetAnimation,setTargetAnimation] =useState("");
-  if(props.targetAnimation!==undefined){
-    setTargetAnimation(props.targetAnimation);
-  }
-
+  const tileRef=useRef();
+  useImperativeHandle(ref, () => ({
+    getTile: () => tileRef.current,
+    setAnimation: (str)=>setTargetAnimation(str),
+  }));
 
   return (
-    <group {...props} position={props.position} ref={ref} dispose={null}>
+    <group {...props} position={props.position} ref={tileRef} dispose={null}>
       {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={targetAnimation}  ></Target>}
-      
+      {/* <axesHelper scale={2} position={[0, 2, 0]}></axesHelper> */}
       <mesh geometry={nodes.Cube.geometry} material={materials.floor} />
       <mesh geometry={nodes.Cube_1.geometry} material={materials.outside} />
       <mesh

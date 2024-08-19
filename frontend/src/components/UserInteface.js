@@ -1,5 +1,18 @@
-import React, { useRef, useEffect } from "react";
-
+import React, { useRef, useEffect, useState } from "react";
+import "../index.css";
+import "../UserInterface.scss";
+import {
+  Card,
+  Button,
+  Form,
+  InputGroup,
+  FormControl,
+  Table,
+  ListGroup,
+  Image,
+  ListGroupItem,
+  Spinner,
+} from "react-bootstrap";
 function UserInterface(props) {
   const {
     turnInfo,
@@ -10,8 +23,14 @@ function UserInterface(props) {
     setPieceConfirmButton,
     warningPosition,
     setWarningPosition,
+    userInfo,
+    setUserInfo,
+    whosTurn,
+    setWhosTurn,
+    myPieceInfo,
+    setMyPieceInfo,
   } = props.state;
-
+  const [chatVisible, setChatVisible] = useState(false);
   const toolTip = {
     width: "200px",
     backgroundColor: "#555",
@@ -32,6 +51,7 @@ function UserInterface(props) {
     position: "fixed",
     right: "20px",
     top: "50%",
+    fontFamily: "notoExtraBold",
     transform: "translateY(-50%)",
     display: "flex",
     flexDirection: "column",
@@ -63,9 +83,10 @@ function UserInterface(props) {
       setWarningPosition(false);
     }
   }, [warningPosition]);
-
+  useEffect(() => {}, []);
+  // console.log(turnInfo,'턴인포',myPieceInfo,'마턴인포',whosTurn,'후이즈인포')
   function handleTileConfirmButton() {
-    alert("clicked");
+    // alert("clicked");
     handleTileConfirm(false);
     // 차례 정보를 바꿔버려
     setTurnInfo(2);
@@ -74,20 +95,120 @@ function UserInterface(props) {
   function handlePieceConfirmButton() {
     props.handlePieceConfirm();
   }
+  // console.log(tileConfirmButton,"타일 확정 버튼" , pieceConfirmButton,"게임말 확정 버튼")
   return (
-    <div style={html}>
-      {tileConfirmButton && (
-        <button style={buttonStyle} onClick={handleTileConfirmButton}>
-          타일 확정?!
-        </button>
+    <>
+      <Table id="current-score" bordered>
+        <thead className="table-head">
+          <tr>
+            <td colSpan={4}>남은 목표수</td>
+          </tr>
+        </thead>
+        {userInfo !== undefined ? (
+          <tbody>
+            <tr className="table-body-name">
+              {userInfo?.map((user) => {
+                return (
+                  <td key={user.key} style={{color:user.color}}>
+                    {user.nickName}
+                  </td>
+                );
+              })}
+            </tr>
+            <tr className="table-body-content">
+              {userInfo?.map((user) => {
+                return <td key={user.key}>{user.targets.length}</td>;
+              })}
+            </tr>
+          </tbody>
+        ) : (
+          <Spinner animation="border" role="status" />
+        )}
+      </Table>
+      {whosTurn === myPieceInfo.key && (
+        <Button
+          style={{
+            fontFamily: "Noto Sans KR, sans-serif",
+            position: "fixed",
+            bottom: "0",
+            right: "0",
+            width: "300px",
+            margin: "10px",
+            zIndex: 1000,
+          }}
+          size="lg"
+          variant="warning"
+          disabled={!tileConfirmButton && !pieceConfirmButton}
+          onClick={
+            tileConfirmButton
+              ? handleTileConfirmButton
+              : handlePieceConfirmButton
+          }
+        >
+          위치 확정
+        </Button>
       )}
-      {pieceConfirmButton && (
-        <button style={buttonStyle} onClick={handlePieceConfirmButton}>
-          게임말 위치 확정?!
-        </button>
+      <div style={html}>
+        {warningPosition && <div style={toolTip}>불가능한 장소입니다!</div>}
+      </div>
+      <div id="player-list">
+        <ListGroup>
+          <ListGroupItem variant="dark"><Image id="player-list-icon" src="list.png" /></ListGroupItem>
+          <ListGroupItem variant="dark">참가자</ListGroupItem>
+          {userInfo !== undefined ? (
+            userInfo.map((user) => {
+              let theme = "";
+              if (user.color === "red") theme = "danger";
+              else if (user.color === "blue") theme = "primary";
+              else if (user.color === "green") theme = "success";
+              else if (user.color === "yellow") theme = "warning";
+              return (
+                <ListGroupItem
+                  key={user.key}
+                  style={{ color: user.color }}
+                  variant={(whosTurn===user.key)?theme:"dark"}
+                >
+                  {whosTurn === user.key && <>✔</>}
+                  {user.nickName}
+                </ListGroupItem>
+              );
+            })
+          ) : (
+            <div>Loading...</div>
+          )}
+        </ListGroup>
+      </div>
+      
+      {chatVisible ?<div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}><Image id="player-list-icon" src="list.png" /> 대화하기</div>: (
+        <div id="chatroom-big">
+          <Image
+            id="chatroom-icon"
+            src="minimize_img.png"
+            onClick={() => setChatVisible(!chatVisible)}
+          />
+          <div className="messages-list"></div>
+          <form
+            className="message-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <input type="text" className="message-input" />
+            <button className="send-button">send</button>
+          </form>
+        </div>
       )}
-      {warningPosition&&<div style={toolTip}>이어지지 않은 장소입니다!</div>}
-    </div>
+      <div id="current-target">
+        <ListGroup>
+          <ListGroupItem>현재 목표</ListGroupItem>
+          {myPieceInfo.targets !== undefined ? (
+            <ListGroupItem>{myPieceInfo?.targets[0]}</ListGroupItem>
+          ) : (
+            <div>Loading...</div>
+          )}
+        </ListGroup>
+      </div>
+    </>
   );
 }
 

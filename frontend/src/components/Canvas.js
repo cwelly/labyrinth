@@ -12,12 +12,26 @@ import GameObejcts from "./GameObject";
 import Camera from "./Camera";
 import React, { forwardRef, Suspense, useRef, useState } from "react";
 import UserInterface from "./UserInteface";
-
+let testGamePieceInfo = [
+  { key: 1, nickName: "Mike", color: "red", coordinate: 1  , targets:  ["C", "G", "H", "J", "K", "L",]},
+  { key: 2, nickName: "Sam", color: "blue", coordinate: 13 , targets: ["A", "B", "E", "F", "D", "I",] },
+  { key: 3, nickName: "Susie", color: "green", coordinate: 27, targets: ["M", "N", "O", "P", "Q", "R",] },
+  { key: 4, nickName: "Kai", color: "yellow", coordinate: 41 , targets: ["S", "T", "U", "X", "Y", "Z",]},
+];
 function Canva() {
   const grid_size = [100, 100];
   const grid_position = [0, 0, 0];
   const cameraRef = useRef();
   const gameObjectRef = useRef();
+  
+  // 자신의 번호를 넘겨주는 state
+  const [myPieceInfo ,setMyPieceInfo] = useState({ nickName: "Sam" , key:2 });
+  // 누구의 차례인지 받아오는 state
+  const [whosTurn , setWhosTurn] = useState(2);
+  // 게임말의 정보를 서버에서 받아오는 정보
+  const [userInfo, setUserInfo] = new useState(testGamePieceInfo);
+  // 누구 차례인지 정하는 state
+  const [] = useState();
   // 타일확정 버튼 state
   const [tileConfirmButton, setTileConfirmButton] = useState(false);
   // 게임의 현재 상태(턴과는 상관없는 )state
@@ -48,6 +62,9 @@ function Canva() {
     setPieceConfirmButton,
     warningPosition,
     setWarningPosition,
+    userInfo, setUserInfo,
+    whosTurn , setWhosTurn,
+    myPieceInfo ,setMyPieceInfo,
   };
 
   return (

@@ -1,0 +1,109 @@
+#current-score{
+  font-family: "cookieBold", sans-serif;
+  position: fixed;
+  transform: translateX(-50%);
+  top: 0; /* 상단에 위치 */
+  left: 50%; /* 가로축의 오른쪽 끝으로 이동 */
+  width: 300px;
+  z-index: 1000;
+  font-size: large;
+  -webkit-text-stroke: 0.4px black;
+  text-align: center;
+  align-items: center;
+}
+
+
+#player-list {
+  font-family: "cookieBold", sans-serif;
+  position: fixed;
+  top: 20%; /* 상단에 위치 */
+  right: 0; /* 가로축의 오른쪽 끝으로 이동 */
+  z-index: 1000;
+  text-align: center;
+  -webkit-text-stroke: 0.4px black;
+  user-select: none;
+}
+#player-list-icon{
+  width: 25px;
+}
+#current-target {
+  font-family: "cookieBold";
+  // background-color: #fedbb3;
+  position: fixed;
+  font-size: x-large;
+  transform: translateX(-50%);
+  bottom: 0;
+  left: 50%;
+  z-index: 1000;
+  text-align: center;
+  align-items: center;
+}
+
+#chatroom-big {
+  font-family: "cookieBold", sans-serif;
+  background: white;
+  position: fixed;
+  bottom: 0;
+  border: solid;
+  border-width: 1px;
+  width: 500px;
+  height: 800px;
+  left: 0;
+  overflow: hidden;
+  display: flex;
+  z-index: 1000;
+  text-align: center;
+  flex-direction: column;
+}
+#chatroom-icon{
+  width: 30px;
+  margin-left: auto;
+  margin-right: 10px;
+  border: #ccc;
+}
+#chatroom-small{
+  font-family: "cookieBold", sans-serif;
+  bottom: 0;
+  border: black;
+  border-style: solid;
+  border-width: 1.5px;
+  user-select: none;
+  border-radius: 10%;
+  position: fixed;
+  left: 0;
+  margin: 10px;
+  padding: 10px;
+  z-index: 1000;
+  background: white;
+  font-size: 25px;
+}
+.messages-list {
+  padding: 20px;
+  flex-grow: 1;
+  overflow-y: auto;
+  user-select: none;
+}
+.message-form {
+  border-top: 1px solid black;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.message-input {
+  flex-grow: 1;
+  font-family: "notoBold";
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+}
+
+.send-button {
+  padding: 10px 20px;
+  border-radius: 16px;
+  border: none;
+  background-color: #2979ff;
+  color: #fff;
+  cursor: pointer;
+}

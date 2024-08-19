@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // `root`라는 id를 가진 DOM 노드를 선택합니다.
 const rootElement = document.getElementById('root');

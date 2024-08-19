@@ -27,3 +27,55 @@ canvas {
   width: 100%;
   text-align: center;
 }
+@font-face {
+  font-family: 'notoBlack';
+  src: url('./font/NotoSansKR-Black.ttf');
+}
+@font-face {
+  font-family: 'notoBold';
+  src: url('./font/NotoSansKR-Bold.ttf');
+}
+@font-face {
+  font-family: 'notoExtraBold';
+  src: url('./font/NotoSansKR-ExtraBold.ttf');
+}
+@font-face {
+  font-family: 'notoExtraLight';
+  src: url('./font/NotoSansKR-ExtraLight.ttf');
+}
+@font-face {
+  font-family: 'notoLight';
+  src: url('./font/NotoSansKR-Light.ttf');
+}
+@font-face {
+  font-family: 'notoMedium';
+  src: url('./font/NotoSansKR-Medium.ttf');
+}
+@font-face {
+  font-family: 'notoRegular';
+  src: url('./font/NotoSansKR-Regular.ttf');
+}
+@font-face {
+  font-family: 'notoSemiBold';
+  src: url('./font/NotoSansKR-SemiBold.ttf');
+}
+@font-face {
+  font-family: 'notoThin';
+  src: url('./font/NotoSansKR-Thin.ttf');
+}
+.custom-td{
+  font-family: 'notoExtraBlack',sans-serif;
+  font-size: 16px;
+}
+@font-face {
+  font-family: 'cookieBlack';
+  src: url('./font/CookieRun\ Black.ttf');
+}
+@font-face {
+  font-family: 'cookieBold';
+  src: url('./font/CookieRun\ Bold.ttf');
+}
+@font-face {
+  font-family: 'cookieRegular';
+  src: url('./font/CookieRun\ Regular.ttf');
+}

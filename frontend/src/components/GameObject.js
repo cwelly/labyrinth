@@ -37,12 +37,7 @@ let push_spot_coordinates = [
   { key: 11, x: 0, y: -8.2, z: 0 },
   { key: 12, x: 4.1, y: -8.2, z: 0 },
 ];
-let server_target_infos = [
-  { key: 1, nickName: "Mike", targets: ["A", "B", "E", "F", "D", "I",] },
-  { key: 2, nickName: "Sam", targets: ["C", "G", "H", "J", "K", "L",] },
-  { key: 3, nickName: "Susie", targets: ["M", "N", "O", "P", "Q", "R",] },
-  { key: 4, nickName: "Kai", targets: ["S", "T", "U", "X", "Y", "Z",] },
-]
+
 // 서버에서 받아온 각 좌표에 대한 타일 및 방향 정보
 let server_side_tile_infos = [
   { type: "L", dir: 0 },
@@ -95,12 +90,7 @@ let server_side_tile_infos = [
   { type: "O", dir: 2, target: "X" },
   { type: "L", dir: 2 },
 ];
-let testGamePieceInfo = [
-  { key: 1, nickName: "Mike", color: "red", coordinate: 1 },
-  { key: 2, nickName: "Sam", color: "blue", coordinate: 13 },
-  { key: 3, nickName: "Susie", color: "green", coordinate: 27 },
-  { key: 4, nickName: "Kai", color: "yellow", coordinate: 41 },
-];
+
 
 // 타일의 방향을 준다면 , 그대로 불러온 회전시킬 좌표를 리턴하는 메소드
 function clock_way_rotate(dir) {
@@ -227,7 +217,6 @@ function gen_tile({ dir, position, type, scale, target, ref }) {
         <LTile
           ref={ref}
           position={[position.x, position.y, position.z]}
-          // position={position}
           rotation={clock_way_rotate(dir)}
           scale={scale}
           userData={{
@@ -278,9 +267,11 @@ const GameObejcts = forwardRef((props, ref) => {
     setPieceConfirmButton,
     warningPosition,
     setWarningPosition,
+    userInfo, setUserInfo,
+    myPieceInfo ,setMyPieceInfo,
   } = state;
-  // 현재 클라이언트의 닉네임을 기록하기 위한 state
-  const [myPieceInfo, setMyPieceInfo] = useState({ nickName: "Sam" });
+  // // 현재 클라이언트의 닉네임을 기록하기 위한 state
+  // const [myPieceInfo, setMyPieceInfo] = useState({ nickName: "Sam" });
   // 현재 게임말이 접근 가능한 좌표 모음 state
   const [availableCoordinate, setAvailableCoordinate] = useState();
   // 현재 타일들의 접근 가능한 여부를 저장한 state
@@ -304,7 +295,7 @@ const GameObejcts = forwardRef((props, ref) => {
     new THREE.Vector3(0, 2, 0)
   );
   // 게임말의 정보를 서버에서 받아오는 정보
-  const [piecesInfo, setPiecesInfo] = new useState(testGamePieceInfo);
+  // const [userInfo, setUserInfo] = new useState(testGamePieceInfo);
   // 타일 확정후 , 움직이는 오브젝트들을 저장하는 state
   const [moveObjects, setMoveObjects] = useState({
     tile: [],
@@ -315,8 +306,6 @@ const GameObejcts = forwardRef((props, ref) => {
   // const [targetAnimations, setTargetAnimations] = useState(new Array(49).fill(""));
   // const targetAnimationss = new Array(49).fill("");
 
-  //  현재 남은 목표를 저장할 친구
-  const [targetInfos, setTargetInfos] = useState(server_target_infos);
   // 드래그 타일의 타겟을 정하는 state
   const [dragTileTarget, setDragTileTarget] = useState();
   // 드래그 타일의 타입을 정하는 state
@@ -583,7 +572,7 @@ const GameObejcts = forwardRef((props, ref) => {
             gameBoardRef?.current[myPieceInfo.coordinate + 1].setAnimation(
               "down"
             );
-            setPiecesInfo((prev) =>
+            setUserInfo((prev) =>
               prev.map((piece) =>
                 piece.nickName === myPieceInfo.nickName
                   ? { ...piece, coordinate: way[0].way }
@@ -733,7 +722,7 @@ const GameObejcts = forwardRef((props, ref) => {
   useEffect(() => {
     if (gameBoardRef?.current > 0) {
       console.log(gameBoardRef)
-      piecesInfo.map((piece) => {
+      userInfo.map((piece) => {
         // 목표가 존재할 경우
         if (serverTileInfo[piece.coordinate].target !== undefined) {
           gameBoardRef?.current[piece.coordinate].setAnimation("up");
@@ -744,9 +733,9 @@ const GameObejcts = forwardRef((props, ref) => {
   // 자신의 말의 위치를 갱신하기
   useEffect(() => {
     setMyPieceInfo(
-      piecesInfo.filter((piece) => piece.nickName === myPieceInfo.nickName)[0]
+      userInfo.filter((piece) => piece.nickName === myPieceInfo.nickName)[0]
     );
-  }, [piecesInfo]);
+  }, [userInfo]);
 
   // 차례정보를 따라가는 useEffect
   useEffect(() => {
@@ -819,7 +808,7 @@ const GameObejcts = forwardRef((props, ref) => {
           };
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 1; index < 49; index += 7) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -832,7 +821,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           // 찾아보자
           setMoveObjects(newMoveObjects);
         } else if (confirmTileInfo.position.z === 0) {
@@ -876,7 +865,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 3; index < 49; index += 7) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -889,7 +878,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else {
           // 3번
@@ -931,7 +920,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 5; index < 49; index += 7) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -944,7 +933,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         }
       } else if (confirmTileInfo.position.x === -8.2) {
@@ -989,7 +978,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 43; index > 0; index -= 7) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1002,7 +991,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else if (confirmTileInfo.position.z === 0) {
           // 8
@@ -1044,7 +1033,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 45; index > 0; index -= 7) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1057,7 +1046,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else {
           // 7
@@ -1099,7 +1088,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 47; index > 0; index -= 7) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1112,7 +1101,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         }
       } else if (confirmTileInfo.position.z === 8.2) {
@@ -1158,7 +1147,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 13; index > 6; index -= 1) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1171,7 +1160,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else if (confirmTileInfo.position.x === 0) {
           //5
@@ -1213,7 +1202,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 27; index > 20; index -= 1) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1226,7 +1215,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else {
           //6
@@ -1268,7 +1257,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 41; index > 34; index -= 1) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1281,7 +1270,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         }
       } else if (confirmTileInfo.position.z === -8.2) {
@@ -1326,7 +1315,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 35; index < 42; index += 1) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1339,7 +1328,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else if (confirmTileInfo.position.x === 0) {
           // 11
@@ -1381,7 +1370,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 21; index < 28; index += 1) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1394,7 +1383,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         } else {
           // 12
@@ -1436,7 +1425,7 @@ const GameObejcts = forwardRef((props, ref) => {
           // console.log("마지막 타일은 ? " ,dragTilePosition);
           setServerTileInfo(newServerTileInfo);
           // 이제 게임말을 체크해야함
-          const newPieceInfo = piecesInfo.map((piece) => {
+          const newPieceInfo = userInfo.map((piece) => {
             for (let index = 7; index < 14; index += 1) {
               if (piece.coordinate === index) {
                 newMoveObjects.piece.push(piece.key);
@@ -1449,7 +1438,7 @@ const GameObejcts = forwardRef((props, ref) => {
             }
             return piece;
           });
-          setPiecesInfo(newPieceInfo);
+          setUserInfo(newPieceInfo);
           setMoveObjects(newMoveObjects);
         }
       }
@@ -1695,26 +1684,9 @@ const GameObejcts = forwardRef((props, ref) => {
             if (!(confirmTileInfo.isVisible === true)) {
               const translationMatrix = new THREE.Matrix4();
               translationMatrix.makeTranslation(0, 0, 0);
-              // setDragMatrix(translationMatrix);
-              // translationMatrix.makeTranslation(
-              //   confirmTileInfo.position.x,
-              //   confirmTileInfo.position.y - 1,
-              //   confirmTileInfo.position.z
-              // );
-              // dragTileRef.current.getDragTile()
-              const nowTile = dragTileRef.current.getDragTile();
-              // 현재의 world좌표계로 맞추는 코드
-              // const localMatrix = new THREE.Matrix4();
-              // localMatrix.invert(nowTile.parent.matrixWorld).multiply(nowTile.matrixWorld);
-              // nowTile.matrix.copy(localMatrix)
-              // nowTile.parent.matrix.identity();
-              // nowTile.parent.matrixAutoUpdate = false;
-              // nowTile.parent.updateMatrixWorld(true);
-              setDragTilePosition(new THREE.Vector3(confirmTileInfo.position.x,confirmTileInfo.position.y,confirmTileInfo.position.z));
-              // setDragTilePosition(new THREE.Vector3(confirmTileInfo.position.x,confirmTileInfo.position.y,confirmTileInfo.position.z))
-              // dragTileRef.current.updatePosition(confirmTileInfo)
-              console.log(nowTile, "현재값\n", confirmTileInfo,"state의 값\n",dragTilePosition);
-              // dragTileRef.current.getDragTile().position=confirmTileInfo.position
+             const nowTile = dragTileRef.current.getDragTile();
+            setDragTilePosition(new THREE.Vector3(confirmTileInfo.position.x,confirmTileInfo.position.y,confirmTileInfo.position.z));
+              // console.log(nowTile, "현재값\n", confirmTileInfo,"state의 값\n",dragTilePosition);
               setDragMatrix(translationMatrix);
               handleTileConfirm(true);
             }
@@ -1755,7 +1727,7 @@ const GameObejcts = forwardRef((props, ref) => {
       }
       <Pieces
         ref={piecesRef}
-        PieceInfo={piecesInfo}
+        PieceInfo={userInfo}
         MeepleScale={meeple_scale}
       />
     </Suspense>

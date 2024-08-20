@@ -1,0 +1,51 @@
+#ready {
+  position: fixed;
+  transform: translateX(-50%);
+  top: 0; /* 상단에 위치 */
+  left: 50%; /* 가로축의 오른쪽 끝으로 이동 */
+  border: solid;
+  margin: 0;
+  border-width: 1px;
+}
+#ready-button {
+  font-family: "cookieBold";
+  font-size: 50px;
+    position: fixed;
+  bottom: 0;
+  margin: 10px;
+  padding: 20px 100px 20px 100px;
+  transform: translateX(-50%);
+  left: 50%; 
+  
+}
+#ready-table {
+  font-family: "cookieBold", sans-serif;
+  font-size: 200%;
+  margin: 0px;
+  -webkit-text-stroke: 0.4px black;
+  text-align: center;
+  table-layout: fixed;
+  .ready-space-readied {
+    width: 200px;
+    height: 200px;
+    background-color: rgb(212, 210, 210); /* 이미지 이외의 부분의 배경색 */
+    background-image: url("../public/ready.png");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .ready-space-not-readied {
+    width: 200px;
+    height: 200px;
+  }
+}
+#game-player-list {
+  font-family: "cookieBold", sans-serif;
+  position: fixed;
+  top: 60%; /* 상단에 위치 */
+  right: 0; /* 가로축의 오른쪽 끝으로 이동 */
+  width: 150px;
+  z-index: 1000;
+  text-align: center;
+  -webkit-text-stroke: 0.4px black;
+  user-select: none;
+}

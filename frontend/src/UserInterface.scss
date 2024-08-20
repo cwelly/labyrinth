@@ -18,6 +18,7 @@
   position: fixed;
   top: 20%; /* 상단에 위치 */
   right: 0; /* 가로축의 오른쪽 끝으로 이동 */
+  width: 150px;
   z-index: 1000;
   text-align: center;
   -webkit-text-stroke: 0.4px black;
@@ -85,7 +86,7 @@
 }
 .message-form {
   border-top: 1px solid black;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   align-items: center;
 }

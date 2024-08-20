@@ -1,38 +1,83 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import React, { useRef } from "react";
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import Camera from "./Camera";
-import { ITile } from "./Objects/ITile";
+import React, { useCallback, useContext, useRef, useState } from "react";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Toast from "react-bootstrap/Toast";
 import LandingCanvas from "./LandingCanvas";
+import { useNavigate } from "react-router-dom";
+import { LoginContext } from "./LoginContext";
+import "../index.css";
+import "../LandingPage.scss";
+function LandingPage() {
+  const navigate = useNavigate();
+  const { login } = useContext(LoginContext);
+  const nickcnameRef = useRef();
+  const [show, setShow] = useState("");
 
-function LandingPage(){
-    const tileRef = useRef();
-    return (<>
-    <Form style={{
-        position:"fixed",
-        top:"15%",
-        left:"50%",
-        transform:"translateX(-50%)",
-        alignItems:"center",
-        display:"flex",
-        flexDirection:"column",
-        zIndex:1000,
-        userSelect:"none"
-    }}>
-         <Form.Label>닉네임</Form.Label>
-        <Form.Control type="text" placeholder="닉네임을 입력해주세요" />
-        <Form.Text >
-          너무 이상한 입력은 다시한번 고려해주세요
-        </Form.Text>
-        <Button style={{marginTop:"20px"}} variant="primary">로그인</Button>
-    </Form>
-    <Canvas>
-        <ambientLight intensity={0.9} />
-        <directionalLight position={[10, 10, 10]} intensity={1} />
-        <LandingCanvas/>
-    </Canvas>
-    </>);
+  function validateNickname(nickcname) {
+    const isValidLength = nickcname.length >= 4 && nickcname.length <= 10;
+    // 특수문자 확인
+    const isValidCharacters = /^[a-zA-Z가-힣0-9]+$/.test(nickcname);
+    console.log(isValidCharacters, " 올바른 여부", isValidLength, "길이여부");
+    return isValidCharacters && isValidLength;
+  }
+  const handleSubmit = (e) => {
+    console.log(nickcnameRef?.current.value);
+    const nickcname = nickcnameRef?.current.value;
+    // 1차적으로 거르기
+    if (validateNickname(nickcname)) {
+      login(nickcname);
+      navigate("/GameRoom");
+    } else {
+      console.log("불합");
+      setShow(true);
+    }
+  };
+
+  return (
+    <>
+      <div>
+        <Form
+          id="login-form"
+          style={{
+            position: "fixed",
+            top: "15%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            zIndex: 1000,
+            userSelect: "none",
+          }}
+          onSubmit={(e)=>{
+            e.preventDefault();
+            handleSubmit(e);
+        }}
+        >
+            <h1 id="logo">라비린스</h1>
+          <Form.Label id="title">닉네임</Form.Label>
+          <Form.Control
+            ref={nickcnameRef}
+            type="text"
+            placeholder="사용할 닉네임을 입력해주세요"
+          />
+          <Form.Text>4~10 길이의 영어 , 숫자 , 한글을 입력해주세요 </Form.Text>
+          <Button
+            id="submit-button"
+            variant="primary"
+            size="lg"
+            onClick={handleSubmit}
+          >
+            로그인
+          </Button>
+        </Form>
+      </div>
+      <Canvas style={{ backgroundColor: '#87CEEB' }}>
+        <LandingCanvas />
+      </Canvas>
+    </>
+  );
 }
 
 export default LandingPage;

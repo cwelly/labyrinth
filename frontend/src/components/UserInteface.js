@@ -30,7 +30,7 @@ function UserInterface(props) {
     myPieceInfo,
     setMyPieceInfo,
   } = props.state;
-  const [chatVisible, setChatVisible] = useState(false);
+  const [chatVisible, setChatVisible] = useState(true);
   const toolTip = {
     width: "200px",
     backgroundColor: "#555",
@@ -109,7 +109,7 @@ function UserInterface(props) {
             <tr className="table-body-name">
               {userInfo?.map((user) => {
                 return (
-                  <td key={user.key} style={{color:user.color}}>
+                  <td key={user.key} style={{ color: user.color }}>
                     {user.nickName}
                   </td>
                 );
@@ -153,7 +153,9 @@ function UserInterface(props) {
       </div>
       <div id="player-list">
         <ListGroup>
-          <ListGroupItem variant="dark"><Image id="player-list-icon" src="list.png" /></ListGroupItem>
+          <ListGroupItem variant="dark">
+            <Image id="player-list-icon" src="list.png" />
+          </ListGroupItem>
           <ListGroupItem variant="dark">참가자</ListGroupItem>
           {userInfo !== undefined ? (
             userInfo.map((user) => {
@@ -166,7 +168,7 @@ function UserInterface(props) {
                 <ListGroupItem
                   key={user.key}
                   style={{ color: user.color }}
-                  variant={(whosTurn===user.key)?theme:"dark"}
+                  variant={whosTurn === user.key ? theme : "dark"}
                 >
                   {whosTurn === user.key && <>✔</>}
                   {user.nickName}
@@ -178,8 +180,13 @@ function UserInterface(props) {
           )}
         </ListGroup>
       </div>
-      
-      {chatVisible ?<div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}><Image id="player-list-icon" src="list.png" /> 대화하기</div>: (
+
+      {/* <Chatroom chatVisible={chatVisible} setChatVisible={setChatVisible}></Chatroom> */}
+      {chatVisible ? (
+        <div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}>
+          <Image id="player-list-icon" src="list.png" /> 대화하기
+        </div>
+      ) : (
         <div id="chatroom-big">
           <Image
             id="chatroom-icon"
@@ -211,5 +218,6 @@ function UserInterface(props) {
     </>
   );
 }
+
 
 export default UserInterface;

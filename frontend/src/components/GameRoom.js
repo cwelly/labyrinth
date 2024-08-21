@@ -24,6 +24,32 @@ function GameRoom() {
   const [ready, setReady] = useState(false);
   const { loginedNickname } = cc;
   const [userInfo, setUserInfo] = useState([]);
+  // 이 페이지에서 벗어날때 처리하는 effect
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // 유저 상태를 "inactive"로 변경
+      // setUser((prevUser) => ({
+      //   ...prevUser,
+      //   status: 'inactive',
+      // }));
+    };
+
+    const handlePopState = () => {
+      // 뒤로가기를 할 때 유저 상태를 "inactive"로 변경
+      // setUser((prevUser) => ({
+      //   ...prevUser,
+      //   status: 'inactive',
+      // }));
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
   useEffect( ()=>{
     axios.get('http://localhost:3001/players')
     .then(res=>{ setUserInfo(res.data.players)})
@@ -55,6 +81,7 @@ function GameRoom() {
               }
               return user;
             });
+            socket.emit("updatePlayers",()=>{})
             setUserInfo(newUserInfo);
           }}
         >

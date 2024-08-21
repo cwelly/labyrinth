@@ -1,28 +1,43 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LoginContext } from "./LoginContext";
 import {
-  Card,
   Button,
-  Form,
-  InputGroup,
-  FormControl,
   Table,
   ListGroup,
   Image,
   ListGroupItem,
   Spinner,
 } from "react-bootstrap";
+import io from "socket.io-client";
 import "../GameRoom.scss";
+import axios from "axios";
 let server_player_info = [
   { nickName: "susie", color: "red", key: 1, isReady: true },
   { nickName: "sam123", color: "green", key: 3, isReady: false },
 ];
+const socket = io("http://localhost:3001", 
+  {transports: ['websocket', 'polling']});
+
 function GameRoom() {
   const cc = useContext(LoginContext);
   const [chatVisible, setChatVisible] = useState(true);
   const [ready, setReady] = useState(false);
   const { loginedNickname } = cc;
-  const [userInfo, setUserInfo] = useState(server_player_info);
+  const [userInfo, setUserInfo] = useState([]);
+  useEffect( ()=>{
+    axios.get('http://localhost:3001/players')
+    .then(res=>{ setUserInfo(res.data.players)})
+    .catch(error=>{});
+  } , [] );
+  useEffect(() => {
+    socket.on("updatePlayers", (players) => {
+      setUserInfo(players);
+    });
+    return () => {
+      socket.off("updatePlayers");
+    };
+  }, []);
+  // console.log(userInfo)
   return (
     <>
       <div>
@@ -32,15 +47,15 @@ function GameRoom() {
           onClick={(e) => {
             setReady(!ready);
             // 값들 바꿀 부분
-
+            console.log(loginedNickname);
             // 송신할 부분
-            const newUserInfo = userInfo.map(user => {
-              if(user.nickName===loginedNickname.nickname){
-                return {...user , isReady:!user.isReady}
+            const newUserInfo = userInfo.map((user) => {
+              if (user.nickName === loginedNickname) {
+                return { ...user, isReady: !user.isReady };
               }
               return user;
-            })
-            setUserInfo(newUserInfo)
+            });
+            setUserInfo(newUserInfo);
           }}
         >
           준비 완료

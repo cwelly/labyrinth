@@ -1,12 +1,8 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import "../index.css";
 import "../UserInterface.scss";
-import {
-  Card,
-  Button,
-  Form,
-  InputGroup,
-  FormControl,
+import { 
+  Button, 
   Table,
   ListGroup,
   Image,
@@ -14,21 +10,16 @@ import {
   Spinner,
 } from "react-bootstrap";
 function UserInterface(props) {
-  const {
-    turnInfo,
+  const { 
     setTurnInfo,
     handleTileConfirm,
     tileConfirmButton,
-    pieceConfirmButton,
-    setPieceConfirmButton,
+    pieceConfirmButton, 
     warningPosition,
     setWarningPosition,
-    userInfo,
-    setUserInfo,
-    whosTurn,
-    setWhosTurn,
-    myPieceInfo,
-    setMyPieceInfo,
+    userInfo, 
+    whosTurn, 
+    myPieceInfo, 
   } = props.state;
   const [chatVisible, setChatVisible] = useState(true);
   const toolTip = {
@@ -59,17 +50,7 @@ function UserInterface(props) {
     zIndex: "1",
     userSelect: "none" /* Prevent text selection */,
   };
-  const buttonStyle = {
-    backgroundColor: "#007bff", // 버튼의 배경 색상 (블루)
-    color: "#fff", // 텍스트 색상 (흰색)
-    border: "none", // 테두리 없음
-    borderRadius: "5px", // 모서리 반경
-    padding: "10px 20px", // 패딩 (위아래 10px, 좌우 20px)
-    fontSize: "16px", // 글자 크기
-    cursor: "pointer", // 포인터 커서
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)", // 그림자
-    transition: "background-color 0.3s, transform 0.2s", // 부드러운 전환 효과
-  };
+   
 
   useEffect(() => {
     if (warningPosition) {
@@ -82,7 +63,7 @@ function UserInterface(props) {
     } else {
       setWarningPosition(false);
     }
-  }, [warningPosition]);
+  }, [warningPosition,setWarningPosition]);
   useEffect(() => {}, []);
   // console.log(turnInfo,'턴인포',myPieceInfo,'마턴인포',whosTurn,'후이즈인포')
   function handleTileConfirmButton() {

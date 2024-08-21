@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React   from "react";
 import Canva from "./components/Canvas";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorPage from "./components/ErrorPage";

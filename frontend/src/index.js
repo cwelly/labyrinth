@@ -11,7 +11,7 @@ const root = ReactDOM.createRoot(rootElement);
 
 // `render` 메서드를 사용하여 앱을 렌더링합니다.
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <App />
-  </React.StrictMode>
+  // </React.StrictMode>
 );

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { LoginContext } from "./LoginContext";
+import { LoginContext, useAuth } from "./LoginContext";
 import {
   Button,
   Table,
@@ -11,27 +11,26 @@ import {
 import io from "socket.io-client";
 import "../GameRoom.scss";
 import axios from "axios";
-let server_player_info = [
-  { nickName: "susie", color: "red", key: 1, isReady: true },
-  { nickName: "sam123", color: "green", key: 3, isReady: false },
-];
-const socket = io("http://localhost:3001", 
-  {transports: ['websocket', 'polling']});
+import { useNavigate } from "react-router-dom";
 
-function GameRoom() {
-  const cc = useContext(LoginContext);
+
+function GameRoom({socket} ) {
   const [chatVisible, setChatVisible] = useState(true);
   const [ready, setReady] = useState(false);
-  const { loginedNickname } = cc;
+  const [myInfo, setMyInfo] = useState({});
+  const navigate = useNavigate();
+  const { loginedNickname, isAuth, logout } = useAuth();
   const [userInfo, setUserInfo] = useState([]);
   // 이 페이지에서 벗어날때 처리하는 effect
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const handleBeforeUnload = (event) => {
       // 유저 상태를 "inactive"로 변경
       // setUser((prevUser) => ({
       //   ...prevUser,
       //   status: 'inactive',
       // }));
+      // socket.emit("test","나 나간다");
+      // logout();
     };
 
     const handlePopState = () => {
@@ -40,32 +39,60 @@ function GameRoom() {
       //   ...prevUser,
       //   status: 'inactive',
       // }));
+      // logout();
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, []);
-  useEffect( ()=>{
-    axios.get('http://localhost:3001/players')
-    .then(res=>{ setUserInfo(res.data.players)})
-    .catch(error=>{});
-  } , [] );
+
+  // 처음 들어올때 유저정보를 초기화하는 부분
+  useEffect(  () => {
+    axios
+      .get("http://localhost:3001/players")
+      .then((res) => {
+        console.log("받아온 데이터인데?" , res.data.players,"이건 내정보고" ,loginedNickname);
+        setUserInfo(res.data.players);
+        setMyInfo(
+          res.data.players.filter(
+            (player) => player.nickName === loginedNickname
+          )
+        );
+      })
+      .catch((error) => {});
+  }, []);
+
+  // 유저정보가 바뀔때마다 반응하도록 하는 effect
   useEffect(() => {
     socket.on("updatePlayers", (players) => {
       setUserInfo(players);
     });
+    socket.on("readiedPlayers", (players) => {
+      setUserInfo(players);
+    });
+    socket.on('gameStarted',()=>{
+      navigate('/Canva')
+    });
     return () => {
+      socket.off("readiedPlayers");
       socket.off("updatePlayers");
     };
-  }, []);
-  // console.log(userInfo)
+  }, [socket]);
+  // console.log(myInfo,"내정보")
   return (
     <>
+      {
+        // 게임준비완료버튼을 생성하는 조건
+        userInfo?.length > 1 &&
+          userInfo.filter((user) => user.isReady === true).length ===
+            userInfo.length&&myInfo[0].key===1&&
+            <div ><Button id="start-button" variant="warning" onClick={()=>{socket.emit('gameStart',{})}}>게임시작</Button></div>
+      }
       <div>
         <Button
           id="ready-button"
@@ -81,7 +108,7 @@ function GameRoom() {
               }
               return user;
             });
-            socket.emit("updatePlayers",()=>{})
+            socket.emit("readyPlayers", loginedNickname);
             setUserInfo(newUserInfo);
           }}
         >

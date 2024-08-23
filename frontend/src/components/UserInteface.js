@@ -50,7 +50,6 @@ function UserInterface(props) {
     zIndex: "1",
     userSelect: "none" /* Prevent text selection */,
   };
-   
 
   useEffect(() => {
     if (warningPosition) {
@@ -64,13 +63,12 @@ function UserInterface(props) {
       setWarningPosition(false);
     }
   }, [warningPosition,setWarningPosition]);
-  useEffect(() => {}, []);
   // console.log(turnInfo,'턴인포',myPieceInfo,'마턴인포',whosTurn,'후이즈인포')
   function handleTileConfirmButton() {
     // alert("clicked");
-    handleTileConfirm(false);
-    // 차례 정보를 바꿔버려
-    setTurnInfo(2);
+    // 테스트용 주석처리 , 다하면 이두개 바꿀것
+    // handleTileConfirm(false);
+    // setTurnInfo(2);
     props.handleTilePush();
   }
   function handlePieceConfirmButton() {
@@ -90,21 +88,22 @@ function UserInterface(props) {
             <tr className="table-body-name">
               {userInfo?.map((user) => {
                 return (
-                  <td key={user.key} style={{ color: user.color }}>
-                    {user.nickName}
+                  <td key={user?.key} style={{ color: user?.color }}>
+                    {user?.nickName}
                   </td>
                 );
               })}
             </tr>
             <tr className="table-body-content">
               {userInfo?.map((user) => {
-                return <td key={user.key}>{user.targets.length}</td>;
+                return <td key={user?.key}>{user?.targets.length}</td>;
               })}
             </tr>
           </tbody>
         ) : (
           <Spinner animation="border" role="status" />
-        )}
+        )
+        }
       </Table>
       {whosTurn === myPieceInfo.key && (
         <Button

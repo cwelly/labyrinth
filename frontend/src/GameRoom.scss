@@ -7,16 +7,25 @@
   margin: 0;
   border-width: 1px;
 }
+#start-button {
+  font-family: "cookieBold";
+  font-size: 50px;
+  position: fixed;
+  padding: 20px 100px 20px 100px;
+  top: 50%;
+  margin: 10px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 #ready-button {
   font-family: "cookieBold";
   font-size: 50px;
-    position: fixed;
+  position: fixed;
   bottom: 0;
   margin: 10px;
   padding: 20px 100px 20px 100px;
   transform: translateX(-50%);
-  left: 50%; 
-  
+  left: 50%;
 }
 #ready-table {
   font-family: "cookieBold", sans-serif;

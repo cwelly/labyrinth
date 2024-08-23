@@ -8,12 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { LoginContext } from "./LoginContext";
 import "../index.css";
 import "../LandingPage.scss";
+
 function LandingPage() {
   const navigate = useNavigate();
   const { login } = useContext(LoginContext);
   const nickcnameRef = useRef();
   const [show, setShow] = useState("");
-
+  
   function validateNickname(nickcname) {
     const isValidLength = nickcname.length >= 4 && nickcname.length <= 10;
     // 특수문자 확인
@@ -22,7 +23,7 @@ function LandingPage() {
     return isValidCharacters && isValidLength;
   }
   const handleSubmit = (e) => {
-    console.log(nickcnameRef?.current.value);
+    console.log(nickcnameRef?.current.value,'로그인하려는 아이디');
     const nickcname = nickcnameRef?.current.value;
     // 1차적으로 거르기
     if (validateNickname(nickcname)) {

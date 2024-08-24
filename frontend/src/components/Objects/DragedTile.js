@@ -16,25 +16,17 @@ export const DragedTile = forwardRef((props, ref) => {
   const { position, rotation, scale, isVisible, target, type } = props;
   useImperativeHandle(ref, () => ({
     getDragTile: () => dragTileRef.current.getTile(),
-    updatePosition: (confirmTileInfo) => {
-      if (dragTileRef.current) {
-        const newPosition = new THREE.Vector3(
-          confirmTileInfo.position.x,
-          confirmTileInfo.position.y,
-          confirmTileInfo.position.z
-        );
-
-        // dragTileRef의 position을 업데이트합니다.
-        dragTileRef.current.position=(newPosition);
-
-        // dragTileRef의 행렬을 업데이트합니다.
-        // dragTileRef.current.updateMatrix();
-        // dragTileRef.current.updateMatrixWorld(true);
-      }
-    },
-    // getPosition: () => position,
+    // updatePosition: (confirmTileInfo) => {
+    //   if (dragTileRef.current) {
+    //     const newPosition = new THREE.Vector3(
+    //       confirmTileInfo.position.x,
+    //       confirmTileInfo.position.y,
+    //       confirmTileInfo.position.z
+    //     );
+    //     dragTileRef.current.position=(newPosition);
+    //   }
+    // },
   }));
-  //   console.log(props)
   if (type === "L") {
     return (
       <LTile

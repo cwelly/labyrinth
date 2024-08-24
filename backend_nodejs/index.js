@@ -281,6 +281,7 @@ io.on("connection", (socket) => {
   socket.on("updatingDragTilePosition", (e) => {
     turnInfo = 3;
     dragTileInfo = { ...dragTileInfo, position: e };
+    io.emit("updateDragTilePosition",dragTileInfo);
   });
   socket.on("updatePieces", (e) => {
     userInfo = e;
@@ -317,8 +318,6 @@ io.on("connection", (socket) => {
     const tmp_dragTileInfo = data.dragTileInfo;
     const tmp_userInfo = data.userInfo;
     const tmp_serverTileInfo = data.serverTileInfo;
-    const tmp_moveObjects = data.moveObjects;
-    const tmp_objectMoveDelay = 2.05;
     turnInfo = 2;
     dragTileInfo = tmp_dragTileInfo;
     userInfo = tmp_userInfo;
@@ -359,7 +358,6 @@ io.on("connection", (socket) => {
       else{
         // 남은 타겟이 있다면  턴을 넘겨야 함(whosTurn -> , turnInfo=1)
         turnInfo=1;
-        console.log("현재차례 정보 :",whosTurn , userCnt);
         whosTurn= (((whosTurn-1)+1)%userCnt)+1;
         // 그리고 userInfo가 변경됨을 알려야함
         const result = {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn};
@@ -369,7 +367,6 @@ io.on("connection", (socket) => {
     } else {
       // 턴을 넘겨야 함(whosTurn -> , turnInfo=1)
       turnInfo=1;
-      console.log("현재차례 정보 :",whosTurn , userCnt);
       whosTurn= (((whosTurn-1)+1)%userCnt)+1;
       // 그리고 userInfo가 변경됨을 알려야함
       const result = {userInfo : userInfo , complished:false,turnInfo:turnInfo , whosTurn:whosTurn};

@@ -70,6 +70,8 @@ function UserInterface(props) {
     // handleTileConfirm(false);
     // setTurnInfo(2);
     props.handleTilePush();
+    // 눌리면 false로 거짓
+    handleTileConfirm(false);
   }
   function handlePieceConfirmButton() {
     props.handlePieceConfirm();
@@ -150,8 +152,8 @@ function UserInterface(props) {
                   style={{ color: user.color }}
                   variant={whosTurn === user.key ? theme : "dark"}
                 >
-                  {whosTurn === user.key && <>✔</>}
                   {user.nickName}
+                  {whosTurn === user.key && <> 님의 차례</>}
                 </ListGroupItem>
               );
             })

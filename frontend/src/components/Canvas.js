@@ -160,7 +160,7 @@ function Canva({socket}) {
       setWhosTurn(res.data.answer.whosTurn);
       setTurnInfo(res.data.answer.turnInfo);
       setDragTileDir(res.data.answer.dragTileInfo.dir);
-      setDragTilePosition(new THREE.Vector3(res.data.answer.dragTileInfo.position[0],res.data.answer.dragTileInfo.position[1],res.data.answer.dragTileInfo.position[2]))
+      setDragTilePosition(new THREE.Vector3(res.data.answer.dragTileInfo.position.x,res.data.answer.dragTileInfo.position.y,res.data.answer.dragTileInfo.position.z))
       setDragTileTarget(res.data.answer.dragTileInfo.target)
       setDragTileType(res.data.answer.dragTileInfo.type)
       setMovingPieceInfo(res.data.answer.movingPieceInfo);

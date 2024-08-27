@@ -52,7 +52,7 @@ function Target(props) {
       <Center top>
         <Text3D
           ref={textRef}
-          position={[0, 5, 0]}
+          position={[0, 6, 0]}
           size={0.5}
           font={"/Noto Sans KR Black_Regular.json"}
           scale={

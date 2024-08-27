@@ -7,7 +7,10 @@ export const LoginProvider = ({ children }) => {
     const savedNickname = localStorage.getItem("nickname");
     return savedNickname ? JSON.parse(savedNickname) : null;
   });
-  
+  const [loginedSpectator, setLoginedSpectator] = useState(() => {
+    const savedSpectator = localStorage.getItem("spectator");
+    return savedSpectator ? JSON.parse(savedSpectator) : false;
+  });
   const [isAuth, setAuth] = useState(() => {
     const savedAuth = localStorage.getItem("isAuth");
     return savedAuth ? JSON.parse(savedAuth) : false;
@@ -17,24 +20,34 @@ export const LoginProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('nickname', JSON.stringify(loginedNickname));
     localStorage.setItem('isAuth', JSON.stringify(isAuth));
-  }, [loginedNickname,isAuth]);
-  const login = async (nickname) => {
+    localStorage.setItem('spectator',JSON.stringify(loginedSpectator))
+  }, [loginedNickname,isAuth,loginedSpectator]);
+  const login= async (nickname) => {
     try {
       // 서버에 로그인 요청을 보냅니다
       const response = await axios.post('http://localhost:3001/login', { nickname });
       
-      if (response.data.success) {
+      if (response.data.success&&response.data.loginedNickname) {
         // 로그인 성공 시
         setLoginedNickname(response.data.loginedNickname);
         setAuth(true); 
         setError(null); // 로그인 오류를 초기화
-      } else {
+        return {localAuth : true , player:true,whosTurn:response.data.whosTurn};
+      } else if(response.data.spectator){
+        // 관전자 로그인 성공 시
+        setLoginedNickname("");
+        setAuth(true); 
+        setError(null); // 로그인 오류를 초기화
+        return {localAuth : true , player:false,whosTurn:response.data.whosTurn};
+      }
+      else {
         // 로그인 실패 시
         setError(response.data.message); // 실패 메시지 설정
         setLoginedNickname(null);
         setAuth(false);
         localStorage.removeItem('nickname');
         localStorage.setItem('isAuth', JSON.stringify(false));
+        return {localAuth : false , player:false};
       }
     } catch (error) {
       // 네트워크 오류 등
@@ -43,6 +56,7 @@ export const LoginProvider = ({ children }) => {
       setAuth(false);
       localStorage.removeItem('nickname');
       localStorage.setItem('isAuth', JSON.stringify(false));
+      return {localAuth : false , player:false};
     }
   };
   const logout = () => {
@@ -53,7 +67,7 @@ export const LoginProvider = ({ children }) => {
   };
 
   return (
-    <LoginContext.Provider value={{ isAuth, loginedNickname, login, logout ,error}}>
+    <LoginContext.Provider value={{ isAuth, loginedNickname,loginedSpectator, login, logout ,error}}>
       {children}
     </LoginContext.Provider>
   );

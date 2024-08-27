@@ -158,7 +158,7 @@ function UserInterface(props) {
               {userInfo?.map((user) => {
                 return (
                   <td key={user?.key} style={{ color: user?.color }}>
-                    {(user.key===myPieceInfo.key)&&<Badge bg="success">me
+                    {(myPieceInfo&&user.key===myPieceInfo.key)&&<Badge bg="success">me
                       </Badge>}{user?.nickName}
                   </td>
                 );
@@ -174,7 +174,7 @@ function UserInterface(props) {
           <Spinner animation="border" role="status" />
         )}
       </Table>
-      {whosTurn === myPieceInfo.key && (
+      {myPieceInfo&&whosTurn === myPieceInfo.key && (
         <div id="infos" >
           
           <Button
@@ -224,7 +224,7 @@ function UserInterface(props) {
       </div>
 
       {/* <Chatroom chatVisible={chatVisible} setChatVisible={setChatVisible}></Chatroom> */}
-      {chatVisible ? (
+      {myPieceInfo&&(chatVisible ? (
         <div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}>
           <Image id="player-list-icon" src="list.png" /> 대화하기
         </div>
@@ -285,8 +285,8 @@ function UserInterface(props) {
             <button className="send-button">send</button>
           </form>
         </div>
-      )}
-      <div id="current-target">
+      ))}
+      {myPieceInfo&&<div id="current-target">
         <ListGroup>
           <ListGroupItem>현재 목표</ListGroupItem>
           {myPieceInfo.targets !== undefined ? (
@@ -295,7 +295,8 @@ function UserInterface(props) {
             <div>Loading...</div>
           )}
         </ListGroup>
-      </div>
+      </div>}
+      
     </>
   );
 }

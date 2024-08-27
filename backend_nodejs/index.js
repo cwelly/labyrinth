@@ -27,6 +27,7 @@ let turnInfo = 0;
 let whosTurn = 0;
 let tileInfo = [];
 let userInfo = [];
+let spectator= [];
 let dragTileInfo = {};
 // players를 클라이언트에서 쓸수잇는 구조로 바꾸기
 function getPlayerInfo(players) {
@@ -175,6 +176,7 @@ function tileRandomizer() {
 }
 app.get("/reset", (req, res) => {
   players={}
+  whosTurn=0;
   current_player_num=1;chatMassages=[];
   return res.status(200).send({ success: true, message: "리셋합니다"  });
 });
@@ -229,12 +231,14 @@ app.post("/login", (req, res) => {
         success: true,
         message: "다시 어서오세요",
         players: players,
+        whosTurn:whosTurn,
       });
     } else {
       return res.status(400).send({
         loginedNickname: nickname,
         success: false,
         message: "이미 접속한 사람이 있습니다",
+        whosTurn:whosTurn,
       });
     }
   }
@@ -247,6 +251,7 @@ app.post("/login", (req, res) => {
       nickName: nickname,
       isReady: false,
       isActive: true,
+      whosTurn:whosTurn,
     };
     current_player_num += 1;
     const playerInfo = Object.keys(players).map((key) => {
@@ -259,11 +264,26 @@ app.post("/login", (req, res) => {
       success: true,
       message: "처음 어서오세요",
       players: players,
+      whosTurn:whosTurn,
     });
-  } else {
+  } 
+  else if(!(nickname in players)){
+    // 관전의 경우
+    spectator.push({nickname:nickname});
+    return res.status(200).send({
+      spectator: nickname,
+      success: true,
+      message: "관전자 이시네요",
+      players:  players,
+      whosTurn: whosTurn,
+    });
+
+  }
+  else {
     return res.status(400).send({
       loginedNickname: nickname,
       success: false,
+      whosTurn:whosTurn,
       message: "사람이 많아서 안됩니다",
     });
   }
@@ -286,14 +306,18 @@ io.on("connection", (socket) => {
     dragTileInfo = { ...dragTileInfo, dir: e };
     io.emit("rotatedDragTile", e);
   });
-  socket.on("updatingDragTilePosition", (e) => {
+  socket.on("updatingDragTileAfterPushigPosition",(e)=>{
     turnInfo = 3;
     dragTileInfo = { ...dragTileInfo, position: e };
-    io.emit("updateDragTilePosition",dragTileInfo);
+  })
+  socket.on("updatingDragTilePosition", (e) => {
+    // turnInfo = 3;
+    dragTileInfo = { ...dragTileInfo, position: e };
   });
   socket.on("updatePieces", (e) => {
     userInfo = e;
     turnInfo = 3;
+    io.emit("updatedPieces",e);
   });
   socket.on("readyPlayers", (nickName) => {
     players[nickName].isReady = !players[nickName].isReady;
@@ -372,21 +396,17 @@ io.on("connection", (socket) => {
         chatMassages=[];
         current_player_num=1;
         // 타겟이 없다면 게임종료 선언
-        const result =  {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn,gameover:true};
         whosTurn=0;
+        const result =  {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn,gameover:true};
         io.emit("confirmedPiece",result)
       }
       else{
-        // 남은 타겟이 있다면  턴을 넘겨야 함(whosTurn -> , turnInfo=1)
         turnInfo=1;
         whosTurn= (((whosTurn-1)+1)%userCnt)+1;
-        // 그리고 userInfo가 변경됨을 알려야함
         const result = {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn,gameover:false};
         io.emit("confirmedPiece",result)
-        // 클라이언트에서 이 userInfo 기반으로 게임이 끝났는지 알아서 체크하라해
       }
     } else {
-      // 턴을 넘겨야 함(whosTurn -> , turnInfo=1)
       turnInfo=1;
       whosTurn= (((whosTurn-1)+1)%userCnt)+1;
       // 그리고 userInfo가 변경됨을 알려야함

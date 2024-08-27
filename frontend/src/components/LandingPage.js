@@ -21,20 +21,29 @@ function LandingPage() {
     const isValidCharacters = /^[a-zA-Z가-힣0-9]+$/.test(nickcname); 
     return isValidCharacters && isValidLength;
   }
-  useEffect(() => {
-    const path = localStorage.getItem("navigateTo");
-    if (null!==path) {
-      navigate(path);
-      localStorage.removeItem("navigateTo"); // 경로 정보 제거
-    }
-  }, [navigate]);
-  const handleSubmit = (e) => { 
-    const nickcname = nickcnameRef?.current.value;
+  // useEffect(() => {
+  //   const path = localStorage.getItem("navigateTo");
+  //   if (null!==path) {
+  //     navigate(path);
+  //     localStorage.removeItem("navigateTo"); // 경로 정보 제거
+  //   }
+  // }, [navigate]);
+  const handleSubmit = async (e) => { 
+    const  nickcname = nickcnameRef?.current.value;
     // 1차적으로 거르기
     if (validateNickname(nickcname)) {
-      login(nickcname);
-      navigate("/GameRoom");
+      const result =await login(nickcname);  
+      if(result.whosTurn!==undefined && result.whosTurn===0){
+        navigate("/GameRoom",{state:{localAuth:result.localAuth}});
+      }
+      else if((result.whosTurn!==undefined&& result.whosTurn!==0)){
+        navigate("/Canva",{state:{localAuth:result.localAuth}});
+      }
+      else{
+        // 로그인 요청 실패
+      }
     } else { 
+      // 닉네임 양식이 맞지 않는 경우
       setShow(true);
     }
   };

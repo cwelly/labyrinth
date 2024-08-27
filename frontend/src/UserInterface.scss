@@ -23,8 +23,6 @@
   button {
     font-family: "cookieBold", sans-serif;
     font-size: 190%;
-    // width: 20%;
-    // height: 10%;
     margin: 10px;
   }
   .tooltip{
@@ -69,6 +67,7 @@
 }
 #winner-table {
   width: 80%;
+  max-width: 500;
   position: absolute;
   left: 50%;
   top: 65%;
@@ -116,6 +115,7 @@
   border: solid;
   border-width: 1px;
   width: 39%;
+  max-width: 500px;
   height: 80%;
   left: 0;
   overflow: hidden;
@@ -166,7 +166,7 @@
       text-align: left;
       background: #ff0000;
       border-radius: 0.4em;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
     }
     .time{
       font-family: "notoThin";
@@ -198,7 +198,7 @@
       background: #002aff;
       border-radius: 0.4em;
       text-align: left;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
     }
     .time{
       font-family: "notoThin";
@@ -230,7 +230,7 @@
       background: #f0ff1a;
       text-align: left;
       border-radius: 0.4em;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
     }
     .time{
       font-family: "notoThin";
@@ -262,7 +262,7 @@
       color: white;
       background: #5efb09;
       border-radius: 0.4em;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
     }
     .time{
       font-family: "notoThin";
@@ -294,7 +294,8 @@
       text-align: left;
       background: #ff0000;
       border-radius: .4em;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
+      margin-bottom: 10px;
     }
     div{
       display: flex;
@@ -335,7 +336,8 @@
       text-align: left;
       background: #002aff;
       border-radius: .4em;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
+      margin-bottom: 10px;
     }
     div{
       display: flex;
@@ -376,7 +378,8 @@
       text-align: left;
       background: #f0ff1a;
       border-radius: .4em;
-      padding: 10px;
+      padding: 5px 10px 0px 10px;
+      margin-bottom: 10px;
     }
     div{
       display: flex;
@@ -417,7 +420,8 @@
       text-align: left;
       background: #5efb09;
       border-radius: .4em;
-      padding: 10px;
+      padding: 5px 5px 10px 10px;
+      margin-bottom: 10px;
     }
     div{
       display: flex;

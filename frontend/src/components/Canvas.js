@@ -7,10 +7,18 @@ import {
   ScreenSpace,
   Html,
   KeyboardControls,
+  View,
+  OrthographicCamera,
 } from "@react-three/drei";
 import GameObejcts from "./GameObject";
 import Camera from "./Camera";
-import React, { forwardRef, Suspense, useEffect, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import UserInterface from "./UserInteface";
 import axios from "axios";
 import * as THREE from "three";
@@ -73,21 +81,45 @@ let server_side_tile_infos = [
   { type: "L", dir: 2 },
 ];
 let testGamePieceInfo = [
-  { key: 1, nickName: "Mike", color: "red", coordinate: 1  , targets:  ["C", "G", "H", "J", "K", "L",]},
-  { key: 2, nickName: "Sam", color: "blue", coordinate: 13 , targets: ["A", "B", "E", "F", "D", "I",] },
-  { key: 3, nickName: "Susie", color: "green", coordinate: 27, targets: ["M", "N", "O", "P", "Q", "R",] },
-  { key: 4, nickName: "Kai", color: "yellow", coordinate: 41 , targets: ["S", "T", "U", "X", "Y", "Z",]},
+  {
+    key: 1,
+    nickName: "Mike",
+    color: "red",
+    coordinate: 1,
+    targets: ["C", "G", "H", "J", "K", "L"],
+  },
+  {
+    key: 2,
+    nickName: "Sam",
+    color: "blue",
+    coordinate: 13,
+    targets: ["A", "B", "E", "F", "D", "I"],
+  },
+  {
+    key: 3,
+    nickName: "Susie",
+    color: "green",
+    coordinate: 27,
+    targets: ["M", "N", "O", "P", "Q", "R"],
+  },
+  {
+    key: 4,
+    nickName: "Kai",
+    color: "yellow",
+    coordinate: 41,
+    targets: ["S", "T", "U", "X", "Y", "Z"],
+  },
 ];
-function Canva({socket}) {
+function Canva({ socket }) {
   const cameraRef = useRef();
   const gameObjectRef = useRef();
-  
+  const ref = useRef();
   //채팅을 기록하는 스테이트
-  const [chatMassages ,setChatMassages] = useState();
+  const [chatMassages, setChatMassages] = useState();
   // 승리자여부를 판별하는 스테이트
-  const [gameResult , setGameResult] = useState(false);
+  const [gameResult, setGameResult] = useState(false);
   //
-  const [movingPieceInfo , setMovingPieceInfo] = useState({})
+  const [movingPieceInfo, setMovingPieceInfo] = useState({});
   // 다른 사람의 드래그 타일의 위치를 정하는 state
   const [dragTilePosition, setDragTilePosition] = useState(
     new THREE.Vector3(0, 2, 0)
@@ -102,11 +134,10 @@ function Canva({socket}) {
   const [serverTileInfo, setServerTileInfo] = useState(server_side_tile_infos);
   // 자신의 번호를 넘겨주는 state
   // const [myPieceInfo ,setMyPieceInfo] = useState({ nickName: "Sam" , key:2 });
-  const [myPieceInfo ,setMyPieceInfo] = useState({  });
+  const [myPieceInfo, setMyPieceInfo] = useState({});
   // 누구의 차례인지 받아오는 state
-  const [whosTurn , setWhosTurn] = useState(2);
-  // 게임말의 정보를 서버에서 받아오는 정보
-  // const [userInfo, setUserInfo] = new useState(testGamePieceInfo);
+  const [whosTurn, setWhosTurn] = useState(2);
+  // 게임말의 정보를 서버에서 받아오는 정보 
   const [userInfo, setUserInfo] = new useState([]);
   // 누구 차례인지 정하는 state
   const [] = useState();
@@ -132,7 +163,8 @@ function Canva({socket}) {
     }
   };
   const state = {
-    turnInfo,socket,
+    turnInfo,
+    socket,
     setTurnInfo,
     handleTileConfirm,
     tileConfirmButton,
@@ -140,52 +172,90 @@ function Canva({socket}) {
     setPieceConfirmButton,
     warningPosition,
     setWarningPosition,
-    userInfo, setUserInfo,
-    whosTurn , setWhosTurn,
-    myPieceInfo ,setMyPieceInfo,
-    serverTileInfo, setServerTileInfo,
-    dragTileTarget, setDragTileTarget,
-    dragTileType, setDragTileType,
-    dragTileDir, setDragTileDir,
-    dragTilePosition, setDragTilePosition,
-    movingPieceInfo,setMovingPieceInfo,
-    gameResult , setGameResult,
-    chatMassages ,setChatMassages,
+    userInfo,
+    setUserInfo,
+    whosTurn,
+    setWhosTurn,
+    myPieceInfo,
+    setMyPieceInfo,
+    serverTileInfo,
+    setServerTileInfo,
+    dragTileTarget,
+    setDragTileTarget,
+    dragTileType,
+    setDragTileType,
+    dragTileDir,
+    setDragTileDir,
+    dragTilePosition,
+    setDragTilePosition,
+    movingPieceInfo,
+    setMovingPieceInfo,
+    gameResult,
+    setGameResult,
+    chatMassages,
+    setChatMassages,
   };
 
   // 시작할때 받아오는 useEffect
-  useEffect(()=>{
-    axios.get("http://localhost:3001/game/init")
-    .then((res)=>{ 
-      setUserInfo(res.data.answer.userInfo);
-      setServerTileInfo(res.data.answer.tileInfo);
-      // 내 피스의 정보를 저장하려면?!
-      const myPiece = res.data.answer.userInfo.filter(user=>(user.nickName===localStorage.getItem("nickname").replaceAll('"', '')))[0];
-      setMyPieceInfo(myPiece)
-      setWhosTurn(res.data.answer.whosTurn);
-      setTurnInfo(res.data.answer.turnInfo);
-      setDragTileDir(res.data.answer.dragTileInfo.dir);
-      setDragTilePosition(new THREE.Vector3(res.data.answer.dragTileInfo.position.x,res.data.answer.dragTileInfo.position.y,res.data.answer.dragTileInfo.position.z))
-      setDragTileTarget(res.data.answer.dragTileInfo.target)
-      setDragTileType(res.data.answer.dragTileInfo.type)
-      setMovingPieceInfo(res.data.answer.movingPieceInfo);
-      setChatMassages(res.data.answer.chatMassages);
-      console.log("초기 드래그 타일 값 : ",res.data.answer.dragTileInfo.position)
-    })
-    .catch()
-  },[])
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/game/init")
+      .then((res) => {
+        setUserInfo(res.data.answer.userInfo);
+        setServerTileInfo(res.data.answer.tileInfo);
+        // 내 피스의 정보를 저장하려면?!
+        const myPiece = res.data.answer.userInfo.filter(
+          (user) =>
+            user.nickName ===
+            localStorage.getItem("nickname").replaceAll('"', "")
+        )[0]; 
+        setMyPieceInfo(myPiece);
+        setWhosTurn(res.data.answer.whosTurn);
+        setTurnInfo(res.data.answer.turnInfo);
+        setDragTileDir(res.data.answer.dragTileInfo.dir);
+        setDragTilePosition(
+          new THREE.Vector3(
+            res.data.answer.dragTileInfo.position.x,
+            res.data.answer.dragTileInfo.position.y,
+            res.data.answer.dragTileInfo.position.z
+          )
+        );
+        setDragTileTarget(res.data.answer.dragTileInfo.target);
+        setDragTileType(res.data.answer.dragTileInfo.type);
+        setMovingPieceInfo(res.data.answer.movingPieceInfo);
+        setChatMassages(res.data.answer.chatMassages);
+      })
+      .catch();
+  }, []);
   return (
-    <KeyboardControls map={[{ name: "clock", keys: ["r", "R"], up: true },{ name: "antiClock", keys: ["q", "Q"], up: true },]} >
-      <UserInterface state={state} handleTilePush={handleTilePush} handlePieceConfirm={handlePieceConfirm} />
-      <Canvas           camera={{ position: [-15, 10, 0], fov: 60, target: [0, 0, 10] }}>
-        <Camera ref={cameraRef} />
-        <ambientLight intensity={0.9} />
-        <directionalLight position={[10, 10, 10]} intensity={1} />
-        <Suspense>
-          <GameObejcts ref={gameObjectRef} cameraRef={cameraRef} state={state}/>
-        </Suspense>
-      </Canvas>
-    </KeyboardControls>
+    <>
+      <KeyboardControls
+        map={[
+          { name: "clock", keys: ["r", "R"], up: true },
+          { name: "antiClock", keys: ["q", "Q"], up: true },
+        ]}
+      >
+        <UserInterface
+          state={state}
+          handleTilePush={handleTilePush}
+          handlePieceConfirm={handlePieceConfirm}
+        />
+        <Canvas
+        >
+          <Camera ref={cameraRef} state={state}/>
+          <ambientLight intensity={0.9} />
+          <directionalLight position={[10, 10, 10]} intensity={1} />
+          <Suspense>
+            <GameObejcts
+              ref={gameObjectRef}
+              cameraRef={cameraRef}
+              state={state}
+            />
+          </Suspense>
+        </Canvas>
+      </KeyboardControls>
+      
+    </>
   );
 }
 export default Canva;

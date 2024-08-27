@@ -13,13 +13,9 @@ const socket = io("http://localhost:3001", {
 });
 
 function App() {
-  // useEffect(()=>{
-  //   return ()=>{socket.disconnect();}
-  // },[]);
   return (
     <div className="App" style={{ width: "100%", height: "100%" }}>
-      <LoginProvider>
-        {/* <SocketProvider> */}
+      <LoginProvider> 
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />}></Route>
@@ -41,8 +37,7 @@ function App() {
               ></Route>
               <Route path="*" element={<ErrorPage />}></Route>
             </Routes>
-          </BrowserRouter>
-        {/* </SocketProvider> */}
+          </BrowserRouter> 
       </LoginProvider>
     </div>
   );

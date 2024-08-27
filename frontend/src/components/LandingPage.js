@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import React, { useCallback, useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Toast from "react-bootstrap/Toast";
@@ -18,19 +18,23 @@ function LandingPage() {
   function validateNickname(nickcname) {
     const isValidLength = nickcname.length >= 4 && nickcname.length <= 10;
     // 특수문자 확인
-    const isValidCharacters = /^[a-zA-Z가-힣0-9]+$/.test(nickcname);
-    console.log(isValidCharacters, " 올바른 여부", isValidLength, "길이여부");
+    const isValidCharacters = /^[a-zA-Z가-힣0-9]+$/.test(nickcname); 
     return isValidCharacters && isValidLength;
   }
-  const handleSubmit = (e) => {
-    console.log(nickcnameRef?.current.value,'로그인하려는 아이디');
+  useEffect(() => {
+    const path = localStorage.getItem("navigateTo");
+    if (null!==path) {
+      navigate(path);
+      localStorage.removeItem("navigateTo"); // 경로 정보 제거
+    }
+  }, [navigate]);
+  const handleSubmit = (e) => { 
     const nickcname = nickcnameRef?.current.value;
     // 1차적으로 거르기
     if (validateNickname(nickcname)) {
       login(nickcname);
       navigate("/GameRoom");
-    } else {
-      console.log("불합");
+    } else { 
       setShow(true);
     }
   };

@@ -31,7 +31,14 @@ function App() {
                   </PrivateRoute>
                 }
               ></Route>
-              <Route path="/Canva" element={<Canva socket={socket}  />}></Route>
+              <Route
+                path="/Canva"
+                element={
+                  <PrivateRoute>
+                    <Canva socket={socket}  />
+                  </PrivateRoute>
+                }
+              ></Route>
               <Route path="*" element={<ErrorPage />}></Route>
             </Routes>
           </BrowserRouter>

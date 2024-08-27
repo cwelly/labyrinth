@@ -82,6 +82,10 @@ function Canva({socket}) {
   const cameraRef = useRef();
   const gameObjectRef = useRef();
   
+  //채팅을 기록하는 스테이트
+  const [chatMassages ,setChatMassages] = useState();
+  // 승리자여부를 판별하는 스테이트
+  const [gameResult , setGameResult] = useState(false);
   //
   const [movingPieceInfo , setMovingPieceInfo] = useState({})
   // 다른 사람의 드래그 타일의 위치를 정하는 state
@@ -145,13 +149,14 @@ function Canva({socket}) {
     dragTileDir, setDragTileDir,
     dragTilePosition, setDragTilePosition,
     movingPieceInfo,setMovingPieceInfo,
+    gameResult , setGameResult,
+    chatMassages ,setChatMassages,
   };
 
   // 시작할때 받아오는 useEffect
   useEffect(()=>{
     axios.get("http://localhost:3001/game/init")
-    .then((res)=>{
-      console.log(res.data);
+    .then((res)=>{ 
       setUserInfo(res.data.answer.userInfo);
       setServerTileInfo(res.data.answer.tileInfo);
       // 내 피스의 정보를 저장하려면?!
@@ -164,6 +169,8 @@ function Canva({socket}) {
       setDragTileTarget(res.data.answer.dragTileInfo.target)
       setDragTileType(res.data.answer.dragTileInfo.type)
       setMovingPieceInfo(res.data.answer.movingPieceInfo);
+      setChatMassages(res.data.answer.chatMassages);
+      console.log("초기 드래그 타일 값 : ",res.data.answer.dragTileInfo.position)
     })
     .catch()
   },[])

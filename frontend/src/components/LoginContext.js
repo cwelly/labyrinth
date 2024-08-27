@@ -15,13 +15,9 @@ export const LoginProvider = ({ children }) => {
   
   const [error, setError] = useState(null); // 로그인 오류 상태 추가
   useEffect(() => {
-    // 로컬 스토리지에 로그인 상태와 닉네임을 저장합니다
     localStorage.setItem('nickname', JSON.stringify(loginedNickname));
-  }, [loginedNickname]);
-  useEffect(()=>{
     localStorage.setItem('isAuth', JSON.stringify(isAuth));
-  },[isAuth])
-
+  }, [loginedNickname,isAuth]);
   const login = async (nickname) => {
     try {
       // 서버에 로그인 요청을 보냅니다
@@ -30,10 +26,7 @@ export const LoginProvider = ({ children }) => {
       if (response.data.success) {
         // 로그인 성공 시
         setLoginedNickname(response.data.loginedNickname);
-        setAuth(true);
-        localStorage.setItem('nickname', JSON.stringify(response.data.loginedNickname));
-        console.log("로그인에 성공해서 받아온 값은 : ",response.data.loginedNickname, loginedNickname , localStorage.getItem("nickname"));
-        localStorage.setItem('isAuth', JSON.stringify(true));
+        setAuth(true); 
         setError(null); // 로그인 오류를 초기화
       } else {
         // 로그인 실패 시

@@ -1,27 +1,39 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "../index.css";
 import "../UserInterface.scss";
-import { 
-  Button, 
+import {
+  Button,
   Table,
   ListGroup,
   Image,
   ListGroupItem,
   Spinner,
+  Offcanvas,
+  Badge,
 } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 function UserInterface(props) {
-  const { 
+  const {
     setTurnInfo,
     handleTileConfirm,
     tileConfirmButton,
-    pieceConfirmButton, 
+    pieceConfirmButton,
     warningPosition,
     setWarningPosition,
-    userInfo, 
-    whosTurn, 
-    myPieceInfo, 
+    userInfo,
+    whosTurn,
+    myPieceInfo,
+    socket,
+    gameResult,
+    setGameResult,
+    chatMassages,
+    setChatMassages,
   } = props.state;
   const [chatVisible, setChatVisible] = useState(true);
+  // 테스트용
+  const [show, setShow] = useState(true);
+
+  const navigate = useNavigate();
   const toolTip = {
     width: "200px",
     backgroundColor: "#555",
@@ -37,7 +49,7 @@ function UserInterface(props) {
     opacity: 1,
     transition: "opacity 0.3s",
   };
-
+  const chatRef = useRef();
   const html = {
     position: "fixed",
     right: "20px",
@@ -51,6 +63,16 @@ function UserInterface(props) {
     userSelect: "none" /* Prevent text selection */,
   };
 
+  // 채팅 관련 useEffect
+  useEffect(() => {
+    socket.on("sendedChat", (data) => {
+      setChatMassages(data);
+      console.log(data);
+    });
+    return () => {
+      socket.off("sendedChat");
+    };
+  }, []);
   useEffect(() => {
     if (warningPosition) {
       setWarningPosition(true);
@@ -62,15 +84,12 @@ function UserInterface(props) {
     } else {
       setWarningPosition(false);
     }
-  }, [warningPosition,setWarningPosition]);
-  // console.log(turnInfo,'턴인포',myPieceInfo,'마턴인포',whosTurn,'후이즈인포')
+  }, [warningPosition, setWarningPosition]);
+  const resetTextInput = () => {
+    chatRef.current.value = null;
+  };
   function handleTileConfirmButton() {
-    // alert("clicked");
-    // 테스트용 주석처리 , 다하면 이두개 바꿀것
-    // handleTileConfirm(false);
-    // setTurnInfo(2);
     props.handleTilePush();
-    // 눌리면 false로 거짓
     handleTileConfirm(false);
   }
   function handlePieceConfirmButton() {
@@ -79,10 +98,58 @@ function UserInterface(props) {
   // console.log(tileConfirmButton,"타일 확정 버튼" , pieceConfirmButton,"게임말 확정 버튼")
   return (
     <>
+      {gameResult === true && (
+        <div id="winner-Info">
+          <Offcanvas
+            id="winner"
+            show={show}
+            onHide={() => {
+              setShow(false);
+            }}
+            name="test"
+            placement="top"
+            scroll="false"
+            backdrop="false"
+          >
+            <h1>
+              {userInfo.filter((user) => user.targets.length == 0)[0]?.nickName}
+              님의 승리!
+            </h1>
+            <Button
+              onClick={() => {
+                navigate('/');
+              }}
+            >
+              HOME
+            </Button>
+            <Table bordered id="winner-table">
+              <thead>
+                <tr>
+                  <td colSpan={userInfo.length}>남은 목표 수</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {userInfo.map((user) => {
+                    return <td key={user.key}>{user.nickName}</td>;
+                  })}
+                </tr>
+                <tr>
+                  {userInfo.map((user) => {
+                    return <td key={user.key}>{user.targets.length}</td>;
+                  })}
+                </tr>
+              </tbody>
+            </Table>
+            <Offcanvas.Body></Offcanvas.Body>
+          </Offcanvas>
+        </div>
+      )}
+
       <Table id="current-score" bordered>
         <thead className="table-head">
           <tr>
-            <td colSpan={4}>남은 목표수</td>
+            <td colSpan={userInfo.length}>남은 목표수</td>
           </tr>
         </thead>
         {userInfo !== undefined ? (
@@ -91,7 +158,8 @@ function UserInterface(props) {
               {userInfo?.map((user) => {
                 return (
                   <td key={user?.key} style={{ color: user?.color }}>
-                    {user?.nickName}
+                    {(user.key===myPieceInfo.key)&&<Badge bg="success">me
+                      </Badge>}{user?.nickName}
                   </td>
                 );
               })}
@@ -104,40 +172,32 @@ function UserInterface(props) {
           </tbody>
         ) : (
           <Spinner animation="border" role="status" />
-        )
-        }
+        )}
       </Table>
       {whosTurn === myPieceInfo.key && (
-        <Button
-          style={{
-            fontFamily: "Noto Sans KR, sans-serif",
-            position: "fixed",
-            bottom: "0",
-            right: "0",
-            width: "300px",
-            margin: "10px",
-            zIndex: 1000,
-          }}
-          size="lg"
-          variant="warning"
-          disabled={!tileConfirmButton && !pieceConfirmButton}
-          onClick={
-            tileConfirmButton
-              ? handleTileConfirmButton
-              : handlePieceConfirmButton
-          }
-        >
-          위치 확정
-        </Button>
+        <div id="infos" >
+          
+          <Button
+            id="confirm-button"
+            size="lg"
+            variant="warning"
+            disabled={!tileConfirmButton && !pieceConfirmButton}
+            onClick={
+              tileConfirmButton
+                ? handleTileConfirmButton
+                : handlePieceConfirmButton
+            }
+          >
+            위치 확정
+          </Button>
+          {warningPosition && <div id="tooltip" className="tooltip">불가능한 장소입니다!</div>}
+        </div>
       )}
-      <div style={html}>
-        {warningPosition && <div style={toolTip}>불가능한 장소입니다!</div>}
-      </div>
       <div id="player-list">
         <ListGroup>
-          <ListGroupItem variant="dark">
+          {/* <ListGroupItem variant="dark">
             <Image id="player-list-icon" src="list.png" />
-          </ListGroupItem>
+          </ListGroupItem> */}
           <ListGroupItem variant="dark">참가자</ListGroupItem>
           {userInfo !== undefined ? (
             userInfo.map((user) => {
@@ -175,14 +235,53 @@ function UserInterface(props) {
             src="minimize_img.png"
             onClick={() => setChatVisible(!chatVisible)}
           />
-          <div className="messages-list"></div>
+          <div className="messages-list">
+            {chatMassages.map((mes, idx) => {
+              if (mes.key === myPieceInfo.key) {
+                return (
+                  <div key={idx} className={"message-my-" + myPieceInfo.color}>
+                    <p1 className="time">{mes.time}</p1>
+                    <hgroup className="speech-bubble">
+                      <h4>{mes.massage}</h4>
+                    </hgroup>
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={idx} className={"message-another-" + mes.color}>
+                    <hgroup className="speech-bubble">
+                      <h4>{mes.massage}</h4>
+                    </hgroup>
+                    <div>
+                      <p1 className="another-name">{mes.nickName}</p1>
+                      <p1 className="time">{mes.time}</p1>
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </div>
           <form
             className="message-form"
             onSubmit={(e) => {
               e.preventDefault();
+              const now = new Date();
+              const minutes = now.getMinutes().toString().padStart(2, "0");
+              const hour = now.getHours().toString().padStart(2, "0");
+              // console.log(now.getHours)
+              if (chatRef.current.value.length > 0) {
+                socket.emit("sendingChat", {
+                  massage: chatRef?.current.value,
+                  nickName: myPieceInfo.nickName,
+                  key: myPieceInfo.key,
+                  time: hour + ":" + minutes,
+                  color: myPieceInfo.color,
+                });
+                resetTextInput();
+              }
             }}
           >
-            <input type="text" className="message-input" />
+            <input type="text" className="message-input" ref={chatRef} />
             <button className="send-button">send</button>
           </form>
         </div>
@@ -200,6 +299,5 @@ function UserInterface(props) {
     </>
   );
 }
-
 
 export default UserInterface;

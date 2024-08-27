@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { LoginContext, useAuth } from "./LoginContext";
+import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "./LoginContext";
 import {
   Button,
   Table,
@@ -8,7 +8,6 @@ import {
   ListGroupItem,
   Spinner,
 } from "react-bootstrap";
-import io from "socket.io-client";
 import "../GameRoom.scss";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -19,11 +18,22 @@ function GameRoom({socket} ) {
   const [ready, setReady] = useState(false);
   const [myInfo, setMyInfo] = useState({});
   const navigate = useNavigate();
-  const { loginedNickname, isAuth, logout } = useAuth();
+  const { loginedNickname } = useAuth();
   const [userInfo, setUserInfo] = useState([]);
+  const chatRef=useRef();
+  const [chatMassages , setChatMassages] = useState([]);
+  useEffect(() => {
+    socket.on("sendedChat", (data) => {
+      setChatMassages(data);
+      console.log(data);
+    });
+    return () => {
+      socket.off("sendedChat");
+    };
+  }, []);
   // 이 페이지에서 벗어날때 처리하는 effect
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
+    const handleBeforeUnload = () => {
       // 유저 상태를 "inactive"로 변경
       // setUser((prevUser) => ({
       //   ...prevUser,
@@ -50,13 +60,19 @@ function GameRoom({socket} ) {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
-
+  const  resetTextInput =()=>{
+    chatRef.current.value=null;
+  }
+  useEffect(()=>{
+    setMyInfo(userInfo.filter(
+      (player) => player.nickName === loginedNickname
+    ))
+  },[userInfo])
   // 처음 들어올때 유저정보를 초기화하는 부분
   useEffect(  () => {
     axios
       .get("http://localhost:3001/players")
       .then((res) => {
-        console.log("받아온 데이터인데?" , res.data.players,"이건 내정보고" ,loginedNickname);
         setUserInfo(res.data.players);
         setMyInfo(
           res.data.players.filter(
@@ -64,7 +80,7 @@ function GameRoom({socket} ) {
           )
         );
       })
-      .catch((error) => {});
+      .catch(() => {});
   }, []);
 
   // 유저정보가 바뀔때마다 반응하도록 하는 effect
@@ -97,10 +113,9 @@ function GameRoom({socket} ) {
         <Button
           id="ready-button"
           variant={ready ? "primary" : "outline-primary"}
-          onClick={(e) => {
+          onClick={() => {
             setReady(!ready);
             // 값들 바꿀 부분
-            console.log(loginedNickname);
             // 송신할 부분
             const newUserInfo = userInfo.map((user) => {
               if (user.nickName === loginedNickname) {
@@ -182,14 +197,54 @@ function GameRoom({socket} ) {
             src="minimize_img.png"
             onClick={() => setChatVisible(!chatVisible)}
           />
-          <div className="messages-list"></div>
+          <div className="messages-list">
+            {chatMassages.map((mes, idx) => {
+              if (mes.key === myInfo[0].key) {
+                return (
+                  <div key={idx} className={"message-my-" + myInfo[0].color}>
+                    <p1 className="time">{mes.time}</p1>
+                    <hgroup className="speech-bubble">
+                      <h4>{mes.massage}</h4>
+                    </hgroup>
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={idx} className={"message-another-" + mes.color}>
+                    <hgroup className="speech-bubble">
+                      <h4>{mes.massage}</h4>
+                    </hgroup>
+                    <div>
+                      <p1 className="another-name">{mes.nickName}</p1>
+                      <p1 className="time">{mes.time}</p1>
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </div>
           <form
-            className="message-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <input type="text" className="message-input" />
+              className="message-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const now = new Date();
+                const minutes = now.getMinutes().toString().padStart(2, "0");
+                const hour = now.getHours().toString().padStart(2, "0");
+                // console.log(now.getHours)
+                if(chatRef.current.value.length>0){
+
+                  socket.emit("sendingChat", {
+                    massage: chatRef?.current.value,
+                    nickName: myInfo[0].nickName,
+                    key: myInfo[0].key,
+                    time: hour + ":" + minutes,
+                    color: myInfo[0].color,
+                  });
+                  resetTextInput();
+                }
+              }}
+            >
+            <input type="text" className="message-input" ref={chatRef} />
             <button className="send-button">send</button>
           </form>
         </div>

@@ -14,10 +14,8 @@ import React, {
 import { PieceTest } from "./Objects/PieceTest.jsx";
 import { DragControls, useKeyboardControls } from "@react-three/drei";
 import PushSpot from "./Objects/PushSpot.jsx";
-import { PhysicsITile } from "./Objects/PhysicsITile.jsx";
 import * as THREE from "three";
 import { DragedTile } from "./Objects/DragedTile.js";
-import axios from "axios";
 
 // 1. 움직이는 타일이 바닥 밑으로 안내려가게
 // 2. 구체가 아니라 탑뷰로 봤을때 엄청 크게하기
@@ -157,7 +155,6 @@ const GameBoard = forwardRef((props, ref) => {
 // 타일을 둘자리에 보기용으로 생기는 타일
 function gen_tile({ dir, position, type, scale, target, ref }) {
   // 초기화 제대로 안되었다면 out
-
   if (!(position === undefined)) {
     if (type === "L") {
       return (
@@ -206,10 +203,7 @@ const GameObejcts = forwardRef((props, ref) => {
     turnInfo,
     setTurnInfo,
     socket,
-    setTurnInfmovingPieceInfoo,
     handleTileConfirm,
-    tileConfirmButton,
-    pieceConfirmButton,
     setPieceConfirmButton,
     warningPosition,
     setWarningPosition,
@@ -231,6 +225,7 @@ const GameObejcts = forwardRef((props, ref) => {
     setDragTilePosition,
     movingPieceInfo,
     setMovingPieceInfo,
+    gameResult , setGameResult,
   } = state;
   // 현재 게임말이 접근 가능한 좌표 모음 state
   const [availableCoordinate, setAvailableCoordinate] = useState();
@@ -294,11 +289,8 @@ const GameObejcts = forwardRef((props, ref) => {
         setObjectMoveDelay(0);
         // 게임말을 확정할 건지 물어본다
         setPieceConfirmButton(true);
-        socket.emit("updatingDragTilePosition", [
-          dragTilePosition.x,
-          dragTilePosition.y,
-          dragTilePosition.z,
-        ]);
+        socket.emit("updatingDragTilePosition", {x:dragTilePosition.x,y:dragTilePosition.y,z:dragTilePosition.z}
+         );
       }
       // 실행조건
       else {
@@ -733,7 +725,7 @@ const GameObejcts = forwardRef((props, ref) => {
       setMovingPieceInfo(e.movingPieceInfo);
     });
     socket.on("confirmedPiece",(result)=>{
-      console.log("한사람의 차례가 끝났음",result)
+      setGameResult(result.gameover); 
       handleTileConfirm(false)
       setPieceConfirmButton(false)
       setComplished(result.complished);

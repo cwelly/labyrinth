@@ -19,8 +19,10 @@ let color = ["red", "blue", "yellow", "green"];
 // 인게임 관리 변수
 let way = [];
 let movingPiece = {};
-let init_coordinates = [0, 6, 41, 48];
+let chatMassages=[];
+let init_coordinates = [0, 6, 42, 48];
 let current_player_num = 1;
+let test_target=["G","L","V","W"];
 let turnInfo = 0;
 let whosTurn = 0;
 let tileInfo = [];
@@ -171,6 +173,11 @@ function tileRandomizer() {
   });
   return { tileInfo: returnArray, dragTileInfo: variableTiles };
 }
+app.get("/reset", (req, res) => {
+  players={}
+  current_player_num=1;chatMassages=[];
+  return res.status(200).send({ success: true, message: "리셋합니다"  });
+});
 app.get("/test", (req, res) => {
   const arr = tileRandomizer();
   return res
@@ -184,6 +191,7 @@ app.get("/game/init", (req, res) => {
   answer.tileInfo = tileInfo;
   answer.dragTileInfo = dragTileInfo;
   answer.turnInfo = turnInfo;
+  answer.chatMassages = chatMassages;
   // userInfo = getPlayerInfo(players);
   // 예외상황 핸들러
   if (Object.keys(players).length < 2) {
@@ -303,10 +311,13 @@ io.on("connection", (socket) => {
     whosTurn = 1;
     turnInfo = 1;
     // 현재 플레이어들의 타겟을 정해줘야하고
-    targetRandomizer();
+    // targetRandomizer();
     // 타일 위치도 정해줘야 함
     const result = tileRandomizer();
     userInfo = getPlayerInfo(players);
+    userInfo=userInfo.map((player , idx)=>{
+      return {...player , targets:[test_target[idx]],coordinate:init_coordinates[idx]}
+    })
     tileInfo = result.tileInfo;
     // 드래그 타일도 정해줘야 함
     dragTileInfo = result.dragTileInfo[0];
@@ -324,6 +335,13 @@ io.on("connection", (socket) => {
     tileInfo = tmp_serverTileInfo;
     io.emit("tilePushed", data);
   });
+
+  socket.on("sendingChat" , (data)=>{
+    chatMassages.unshift(data)
+    console.log(data)
+    io.emit("sendedChat",chatMassages)
+  })
+
   // 게임말 확정을 누른 직후
   socket.on("confirmingPiece", (data) => {
     // 해야될일
@@ -350,9 +368,12 @@ io.on("connection", (socket) => {
       if (
         userInfo.filter((user) => user.key == whosTurn)[0].targets.length === 0
       ) {
+        players={};
+        chatMassages=[];
+        current_player_num=1;
         // 타겟이 없다면 게임종료 선언
-        const result =  {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn};
-        console.log("gameOver!");
+        const result =  {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn,gameover:true};
+        whosTurn=0;
         io.emit("confirmedPiece",result)
       }
       else{
@@ -360,7 +381,7 @@ io.on("connection", (socket) => {
         turnInfo=1;
         whosTurn= (((whosTurn-1)+1)%userCnt)+1;
         // 그리고 userInfo가 변경됨을 알려야함
-        const result = {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn};
+        const result = {userInfo : userInfo , complished:true,turnInfo:turnInfo , whosTurn:whosTurn,gameover:false};
         io.emit("confirmedPiece",result)
         // 클라이언트에서 이 userInfo 기반으로 게임이 끝났는지 알아서 체크하라해
       }
@@ -369,7 +390,7 @@ io.on("connection", (socket) => {
       turnInfo=1;
       whosTurn= (((whosTurn-1)+1)%userCnt)+1;
       // 그리고 userInfo가 변경됨을 알려야함
-      const result = {userInfo : userInfo , complished:false,turnInfo:turnInfo , whosTurn:whosTurn};
+      const result = {userInfo : userInfo , complished:false,turnInfo:turnInfo , whosTurn:whosTurn,gameover:false};
       io.emit("confirmedPiece",result)
     }
   });

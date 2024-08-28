@@ -9,6 +9,7 @@ import {
   KeyboardControls,
   View,
   OrthographicCamera,
+  Environment,
 } from "@react-three/drei";
 import GameObejcts from "./GameObject";
 import Camera from "./Camera";
@@ -137,7 +138,7 @@ function Canva({ socket }) {
   const [myPieceInfo, setMyPieceInfo] = useState({});
   // 누구의 차례인지 받아오는 state
   const [whosTurn, setWhosTurn] = useState(2);
-  // 게임말의 정보를 서버에서 받아오는 정보 
+  // 게임말의 정보를 서버에서 받아오는 정보
   const [userInfo, setUserInfo] = new useState([]);
   // 누구 차례인지 정하는 state
   const [] = useState();
@@ -208,7 +209,7 @@ function Canva({ socket }) {
           (user) =>
             user.nickName ===
             localStorage.getItem("nickname").replaceAll('"', "")
-        )[0]; 
+        )[0];
         setMyPieceInfo(myPiece);
         setWhosTurn(res.data.answer.whosTurn);
         setTurnInfo(res.data.answer.turnInfo);
@@ -240,11 +241,10 @@ function Canva({ socket }) {
           handleTilePush={handleTilePush}
           handlePieceConfirm={handlePieceConfirm}
         />
-        <Canvas
-        >
-          <Camera ref={cameraRef} state={state}/>
-          <ambientLight intensity={0.9} />
-          <directionalLight position={[10, 10, 10]} intensity={1} />
+        <Canvas>
+          <Camera ref={cameraRef} state={state} />
+          <ambientLight intensity={0.3} />
+          {/* <directionalLight position={[10, 10, 10]} intensity={1} /> */}
           <Suspense>
             <GameObejcts
               ref={gameObjectRef}
@@ -252,9 +252,10 @@ function Canva({ socket }) {
               state={state}
             />
           </Suspense>
+
+          <Environment preset="park" background="true" ground />
         </Canvas>
       </KeyboardControls>
-      
     </>
   );
 }

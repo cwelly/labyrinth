@@ -2,8 +2,7 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
-  useEffect,
-  useState,
+  useEffect, 
 } from "react";
 import { CameraControls, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
@@ -14,37 +13,103 @@ const Camera = forwardRef((props, ref) => {
   const mainRef=useRef();
   const settingRef = useRef();
   const { turnInfo,dragTilePosition } = props.state;
-  const {set} = useThree();
-  const [stopCamera, setStopCamera] = useState(false);
+  const {set} = useThree(); 
   // 카메라의 위치를 초기 위치 로 리셋하는 함수
-  const resetCameraPosition = () => {
-    if (cameraControlsRef.current) {
-      cameraControlsRef.current.setLookAt(0,10, 0, dragTilePosition.x, dragTilePosition.y, dragTilePosition.z, true);
-    }
-  };
 
   useEffect(() => {
-    if (turnInfo === 2) {
+    if (turnInfo === 2) { 
       const nowPosi = mainRef.current.position;
-      let startPosi = [0,20,0]
-      if(nowPosi.x>0){
-        if(nowPosi.z>0){
-          startPosi=[15,20,15]
+      let endPosi = [dragTilePosition.x,dragTilePosition.y,dragTilePosition.z];
+      let startPosi = [0,20,0] 
+      if(dragTilePosition.x>-4.2&& dragTilePosition.x<4.2){
+        if(dragTilePosition.x===4.1){
+          startPosi=[-15,15,0]
+          endPosi = endPosi.map((posi , idx) => {
+            if(idx===2){
+              if(dragTilePosition.z>0){
+                return posi-6.15;
+              }
+              else{
+                return posi+6.15;
+              }
+            }
+            return posi;
+          }) 
+        }else if(dragTilePosition.x===-4.1){
+          startPosi=[15,15,0]
+          endPosi = endPosi.map((posi , idx) => {
+            if(idx===2){
+              if(dragTilePosition.z>0){
+                return posi-6.15;
+              }
+              else{
+                return posi+6.15;
+              }
+            }
+            return posi;
+          }) 
         }
-        else{
-          startPosi=[15,20,-15]
+        else{ 
+          startPosi=[0,15,0]
+          endPosi = endPosi.map((posi , idx) => {
+            if(idx===2){
+              if(dragTilePosition.z>0){
+                return posi-6.15;
+              }
+              else{
+                return posi+6.15;
+              }
+            }
+            return posi;
+          }) 
         }
       }
       else{
-        if(nowPosi.z>0){
-          startPosi=[-15,20,15]
+        if(dragTilePosition.z===4.1){ 
+          startPosi=[0,15,-15]
+          endPosi = endPosi.map((posi , idx) => {
+            if(idx===0){
+              if(dragTilePosition.x>0){
+                return posi-6.15;
+              }
+              else{
+                return posi+6.15;
+              }
+            }
+            return posi;
+          }) 
+        }else if(dragTilePosition.z===-4.1){
+          startPosi=[0,15,15]
+          endPosi = endPosi.map((posi , idx) => {
+            if(idx===0){
+              if(dragTilePosition.x>0){
+                return posi-6.15;
+              }
+              else{
+                return posi+6.15;
+              }
+            }
+            return posi;
+          }) 
         }
         else{
-          startPosi=[-15,20,-15]
+          
+          startPosi=[0,15,0]
+          endPosi = endPosi.map((posi , idx) => {
+            if(idx===0){
+              if(dragTilePosition.x>0){
+                return posi-6.15;
+              }
+              else{
+                return posi+6.15;
+              }
+            }
+            return posi;
+          }) 
         }
       }
       set({camera : settingRef.current})
-      cameraControlsRef.current.setLookAt(startPosi[0],20, startPosi[2], dragTilePosition.x, dragTilePosition.y, dragTilePosition.z, true);
+      cameraControlsRef.current.setLookAt(startPosi[0],startPosi[1], startPosi[2], endPosi[0], endPosi[1], endPosi[2], true);
     } else {
       set({camera : mainRef.current})
     }

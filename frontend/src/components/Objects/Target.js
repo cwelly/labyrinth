@@ -1,10 +1,8 @@
 import React, {
   useRef,
   useState,
-  forwardRef,
-  useImperativeHandle,
 } from "react";
-import { useGLTF, Text, Text3D, Center } from "@react-three/drei";
+import { Text3D, Center } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Vector3 } from "three";
 function Target(props) {

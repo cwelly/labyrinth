@@ -11,6 +11,9 @@ import {
 import "../GameRoom.scss";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Canvas } from "@react-three/fiber";
+import GameRoomCanvas from "./GameRoomCanvas";
+import { Environment } from "@react-three/drei";
 
 
 function GameRoom({socket} ) {
@@ -30,7 +33,7 @@ function GameRoom({socket} ) {
     return () => {
       socket.off("sendedChat");
     };
-  }, []);
+  }, [socket]);
   // 이 페이지에서 벗어날때 처리하는 effect
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -67,7 +70,7 @@ function GameRoom({socket} ) {
     setMyInfo(userInfo.filter(
       (player) => player.nickName === loginedNickname
     ))
-  },[userInfo])
+  },[userInfo,loginedNickname])
   // 처음 들어올때 유저정보를 초기화하는 부분
   useEffect(  () => {
     axios
@@ -81,7 +84,7 @@ function GameRoom({socket} ) {
         );
       })
       .catch(() => {});
-  }, []);
+  }, [loginedNickname]);
 
   // 유저정보가 바뀔때마다 반응하도록 하는 effect
   useEffect(() => {
@@ -98,7 +101,7 @@ function GameRoom({socket} ) {
       socket.off("readiedPlayers");
       socket.off("updatePlayers");
     };
-  }, [socket]);
+  }, [socket,navigate]);
   // console.log(myInfo,"내정보")
   return (
     <>
@@ -109,6 +112,9 @@ function GameRoom({socket} ) {
             userInfo.length&&myInfo[0].key===1&&
             <div ><Button id="start-button" variant="warning" onClick={()=>{socket.emit('gameStart',{})}}>게임시작</Button></div>
       }
+      <Canvas style={{ backgroundColor: "#87CEEB", zIndex:"-1"}} >
+        <GameRoomCanvas></GameRoomCanvas>
+      </Canvas>
       <div>
         <Button
           id="ready-button"
@@ -165,9 +171,6 @@ function GameRoom({socket} ) {
       </div>
       <div id="game-player-list">
         <ListGroup>
-          <ListGroupItem variant="light">
-            <Image id="player-list-icon" src="list.png" />
-          </ListGroupItem>
           <ListGroupItem variant="light">참가자</ListGroupItem>
           {userInfo !== undefined ? (
             userInfo.map((user) => {

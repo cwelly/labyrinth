@@ -15,7 +15,7 @@ import Target from "./Target";
 // export function ITile({ isDraged = false, ...props }) {
 export const ITile = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/ITile-transformed.glb");
-  const { isDraged = false } = props;
+  const { isDraged = false, isEdge = false, edgeColor = "" } = props;
   const [targetAnimation,setTargetAnimation] =useState("");
   const tileRef=useRef();
   useImperativeHandle(ref, () => ({
@@ -25,34 +25,33 @@ export const ITile = forwardRef((props, ref) => {
 
   return (
     <group {...props} ref={tileRef} position={props.position} dispose={null}>
-      {/* <axesHelper scale={2} position={[0, 2, 0]}></axesHelper> */}
       {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={ targetAnimation}   ></Target>}
       
       <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
-        <Edges
-          visible={isDraged}
+      <Edges
+          visible={isEdge}
           lineWidth={5}
           scale={1.1}
           renderOrder={1000}
-          color={"black"}
+          color={edgeColor}
         ></Edges>
       </mesh>
       <mesh geometry={nodes.Cube_1.geometry} material={materials.outside}>
-        <Edges
-          visible={isDraged}
+      <Edges
+          visible={isEdge}
           lineWidth={5}
           scale={1.1}
           renderOrder={1000}
-          color={"black"}
+          color={edgeColor}
         ></Edges>
       </mesh>
       <mesh geometry={nodes.Cube_2.geometry} material={materials.wall_color}>
-        <Edges
-          visible={isDraged}
+      <Edges
+          visible={isEdge}
           lineWidth={5}
           scale={1.1}
           renderOrder={1000}
-          color={"black"}
+          color={edgeColor}
         ></Edges>
       </mesh>
     </group>

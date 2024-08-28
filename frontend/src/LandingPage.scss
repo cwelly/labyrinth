@@ -22,3 +22,16 @@
     margin-top: 30px;
     width: 420px;
 }
+#tooltip1{
+    font-family: "notoExtraBold";
+    font-size: 100%;
+    z-index: 10001;
+    color:#fff;
+    background-color: #555;
+    width: 100%;
+    text-align: center;
+    opacity: 1;
+    padding: 5px 0;
+    margin: 10px 0px -10px 0px;
+    border-radius: 5px;
+}

@@ -14,7 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 function UserInterface(props) {
   const {
-    setTurnInfo,
     handleTileConfirm,
     tileConfirmButton,
     pieceConfirmButton,
@@ -25,7 +24,6 @@ function UserInterface(props) {
     myPieceInfo,
     socket,
     gameResult,
-    setGameResult,
     chatMassages,
     setChatMassages,
   } = props.state;
@@ -34,34 +32,10 @@ function UserInterface(props) {
   const [show, setShow] = useState(true);
 
   const navigate = useNavigate();
-  const toolTip = {
-    width: "200px",
-    backgroundColor: "#555",
-    color: "#fff",
-    textAlign: "center",
-    borderRadius: "5px",
-    padding: "5px 0",
-    position: "absolute",
-    zIndex: 1,
-    bottom: "125%" /* Position above the trigger element */,
-    left: "50%",
-    marginLeft: "-100px" /* Center the tooltip */,
-    opacity: 1,
-    transition: "opacity 0.3s",
-  };
   const chatRef = useRef();
-  const html = {
-    position: "fixed",
-    right: "20px",
-    top: "50%",
-    fontFamily: "notoExtraBold",
-    transform: "translateY(-50%)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-    zIndex: "1",
-    userSelect: "none" /* Prevent text selection */,
-  };
+
+
+  
 
   // 채팅 관련 useEffect
   useEffect(() => {
@@ -72,7 +46,7 @@ function UserInterface(props) {
     return () => {
       socket.off("sendedChat");
     };
-  }, []);
+  }, [setChatMassages,socket]);
   useEffect(() => {
     if (warningPosition) {
       setWarningPosition(true);
@@ -112,7 +86,7 @@ function UserInterface(props) {
             backdrop="false"
           >
             <h1>
-              {userInfo.filter((user) => user.targets.length == 0)[0]?.nickName}
+              {userInfo.filter((user) => user.targets.length === 0)[0]?.nickName}
               님의 승리!
             </h1>
             <Button
@@ -212,8 +186,8 @@ function UserInterface(props) {
                   style={{ color: user.color }}
                   variant={whosTurn === user.key ? theme : "dark"}
                 >
+                  {whosTurn === user.key && <> 차례<br/></>}
                   {user.nickName}
-                  {whosTurn === user.key && <> 님의 차례</>}
                 </ListGroupItem>
               );
             })

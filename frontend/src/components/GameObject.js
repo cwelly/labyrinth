@@ -153,7 +153,7 @@ const GameBoard = forwardRef((props, ref) => {
     });
 });
 // 타일을 둘자리에 보기용으로 생기는 타일
-function gen_tile({ dir, position, type, scale, target, ref }) {
+function gen_tile({ dir, position, type, scale, target, ref ,isEdge,edgeColor}) {
   // 초기화 제대로 안되었다면 out
   if (!(position === undefined)) {
     if (type === "L") {
@@ -166,6 +166,8 @@ function gen_tile({ dir, position, type, scale, target, ref }) {
           userData={{
             target: target,
           }}
+          isEdge={isEdge}
+          edgeColor={edgeColor}
         />
       );
     } else if (type === "I") {
@@ -179,6 +181,8 @@ function gen_tile({ dir, position, type, scale, target, ref }) {
           userData={{
             target: target,
           }}
+          isEdge={isEdge}
+          edgeColor={edgeColor}
         />
       );
     } else {
@@ -192,6 +196,8 @@ function gen_tile({ dir, position, type, scale, target, ref }) {
           userData={{
             target: target,
           }}
+          isEdge={isEdge}
+          edgeColor={edgeColor}
         />
       );
     }
@@ -228,6 +234,9 @@ const GameObejcts = forwardRef((props, ref) => {
     gameResult,
     setGameResult,
   } = state;
+
+  // 현재 차례의 색깔
+  const [edgeColor, setEdgeColor] = useState();
   // 현재 게임말이 접근 가능한 좌표 모음 state
   const [availableCoordinate, setAvailableCoordinate] = useState();
   // 현재 타일들의 접근 가능한 여부를 저장한 state
@@ -235,7 +244,7 @@ const GameObejcts = forwardRef((props, ref) => {
   // 게임말이 이동할 경로를 저장하는state
   const [way, setWay] = useState();
   // 화살표를 그리기 위해 기록할 배열
-  const [arrowLine,setArrowLine] = useState([]);
+  const [arrowLine, setArrowLine] = useState([]);
   const tile_scale = [1, 0.1, 1];
   const meeple_scale = [0.2, 0.2, 0.2];
   const pushSpotRefs = useRef([]);
@@ -247,7 +256,7 @@ const GameObejcts = forwardRef((props, ref) => {
   // 1 : 드래그 타일 이동 중
   // 2 : 타일 확정후 타일 움직이는 중
   // 3 : 말 이동 중
-  // 4: 말 확정 후 말 움직이는 중 
+  // 4: 말 확정 후 말 움직이는 중
   // 게임말의 정보를 서버에서 받아오는 정보
   // 타일 확정후 , 움직이는 오브젝트들을 저장하는 state
   const [moveObjects, setMoveObjects] = useState({
@@ -524,13 +533,13 @@ const GameObejcts = forwardRef((props, ref) => {
         if (myPieceInfo && whosTurn === myPieceInfo.key) {
           // setMyPieceInfo
           setMyPieceInfo(movingPieceInfo);
-          const newUserInfo=userInfo.map(user=>{
-            if(user.key===myPieceInfo.key){
-              return {...user , coordinate:movingPieceInfo.coordinate};
+          const newUserInfo = userInfo.map((user) => {
+            if (user.key === myPieceInfo.key) {
+              return { ...user, coordinate: movingPieceInfo.coordinate };
             }
             return user;
-          }) 
-          socket.emit("updatePieces",newUserInfo );
+          });
+          socket.emit("updatePieces", newUserInfo);
         }
         setPieceConfirmButton(true);
       } else {
@@ -734,13 +743,17 @@ const GameObejcts = forwardRef((props, ref) => {
     });
     socket.on("movedPiece", (e) => {
       setWay(e.way);
-      // 현재 게임말의 위치를 받아와서 넣어야해 
+      // 현재 게임말의 위치를 받아와서 넣어야해
       let tmp_line = [];
       let startPoint = coordinates[e.movingPieceInfo.coordinate];
-      tmp_line.push([startPoint.x,startPoint.z+0.2,startPoint.y])
-      e.way.map((way)=>{
-        tmp_line.push([coordinates[way.way].x,coordinates[way.way].z+0.2,coordinates[way.way].y]);
-      })
+      tmp_line.push([startPoint.x, startPoint.z + 0.2, startPoint.y]);
+      e.way.map((way) => {
+        tmp_line.push([
+          coordinates[way.way].x,
+          coordinates[way.way].z + 0.2,
+          coordinates[way.way].y,
+        ]);
+      });
       setArrowLine(tmp_line);
       setPieceMoveDelay(2.05);
       setPieceConfirmButton(false);
@@ -762,9 +775,9 @@ const GameObejcts = forwardRef((props, ref) => {
       setUserInfo(result.userInfo);
       setWhosTurn(result.whosTurn);
     });
-    socket.on("updatedPieces",(e)=>{ 
+    socket.on("updatedPieces", (e) => {
       setUserInfo(e);
-    })
+    });
     socket.on("updateDragTilePosition", (e) => {
       // setDragTilePosition(new THREE.Vector3(e[0],e[1],e[2]));
     });
@@ -780,6 +793,10 @@ const GameObejcts = forwardRef((props, ref) => {
 
   // 차례정보를 따라가는
   useEffect(() => {
+    // 색을 찾아가는 과정
+    const now_color = userInfo.filter((user) => user.key === whosTurn)[0].color;
+    setEdgeColor(now_color);
+    // console.log(now_color);
     if (myPieceInfo && whosTurn === myPieceInfo.key) {
       socket.emit("updatingDragTilePosition", {
         x: dragTilePosition.x,
@@ -1905,6 +1922,8 @@ const GameObejcts = forwardRef((props, ref) => {
             isVisible={confirmTileInfo.isVisible}
             type={dragTileType}
             target={dragTileTarget}
+            isEdge= {true}
+            edgeColor={edgeColor}
           ></DragedTile>
         </DragControls>
       )}
@@ -1918,6 +1937,8 @@ const GameObejcts = forwardRef((props, ref) => {
             type: dragTileType,
             scale: tile_scale,
             target: dragTileTarget,
+            isEdge: true,
+            edgeColor: edgeColor,
           })
       }
       {
@@ -1932,6 +1953,8 @@ const GameObejcts = forwardRef((props, ref) => {
             type: confirmTileInfo.type,
             scale: tile_scale,
             target: dragTileTarget,
+            isEdge: true,
+            edgeColor: edgeColor,
           })
       }
       {
@@ -1945,7 +1968,9 @@ const GameObejcts = forwardRef((props, ref) => {
             target: dragTileTarget,
           })
       }
-      {turnInfo === 4 && <Line points={arrowLine} color="green" lineWidth={10}  ></Line>}
+      {turnInfo === 4 && (
+        <Line points={arrowLine} color="green" lineWidth={10}></Line>
+      )}
       <Pieces ref={piecesRef} PieceInfo={userInfo} MeepleScale={meeple_scale} />
     </Suspense>
   );

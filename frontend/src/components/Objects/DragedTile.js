@@ -2,30 +2,15 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
-  useEffect,
-  useState,
 } from "react";
-import { useGLTF, Edges } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
 import { ITile } from "./ITile";
 import { OTile } from "./OTile";
 import { LTile } from "./LTile";
 export const DragedTile = forwardRef((props, ref) => {
   const dragTileRef = useRef();
-  const { position, rotation, scale, isVisible, target, type } = props;
+  const { position, rotation, scale, isVisible, target, type ,isEdge,edgeColor} = props;
   useImperativeHandle(ref, () => ({
-    getDragTile: () => dragTileRef.current.getTile(),
-    // updatePosition: (confirmTileInfo) => {
-    //   if (dragTileRef.current) {
-    //     const newPosition = new THREE.Vector3(
-    //       confirmTileInfo.position.x,
-    //       confirmTileInfo.position.y,
-    //       confirmTileInfo.position.z
-    //     );
-    //     dragTileRef.current.position=(newPosition);
-    //   }
-    // },
+    getDragTile: () => dragTileRef.current.getTile(), 
   }));
   if (type === "L") {
     return (
@@ -38,6 +23,8 @@ export const DragedTile = forwardRef((props, ref) => {
         userData={{
           target: target,
         }}
+        isEdge={isEdge}
+        edgeColor={edgeColor}
       ></LTile>
     );
   }
@@ -52,12 +39,13 @@ export const DragedTile = forwardRef((props, ref) => {
         userData={{
           target: target,
         }}
+        isEdge={isEdge}
+        edgeColor={edgeColor}
       ></OTile>
     );
   }
   else {
     return (
-
       <ITile
         visible={isVisible === true}
         ref={dragTileRef}
@@ -67,6 +55,8 @@ export const DragedTile = forwardRef((props, ref) => {
         userData={{
           target: target,
         }}
+        isEdge={isEdge}
+        edgeColor={edgeColor}
       ></ITile>
 
     );

@@ -36,6 +36,7 @@ export const LoginProvider = ({ children }) => {
       } else if(response.data.spectator){
         // 관전자 로그인 성공 시
         setLoginedNickname("");
+        setLoginedSpectator(response.data.spectator)
         setAuth(true); 
         setError(null); // 로그인 오류를 초기화
         return {localAuth : true , player:false,whosTurn:response.data.whosTurn};

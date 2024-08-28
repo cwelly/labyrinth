@@ -4,34 +4,77 @@ Command: npx gltfjsx@6.4.1 LTile.glb --transform
 Files: LTile.glb [7.43KB] > C:\Users\Hyunho\Documents\업무\수습\labyrinth\frontend\src\assets\LTile-transformed.glb [3.46KB] (53%)
 */
 
-import React, { useRef, forwardRef, useImperativeHandle, useState } from "react";
-import { useGLTF, Text, Text3D, Center } from "@react-three/drei";
+import React, {
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useState,
+} from "react";
+import { useGLTF, Text, Text3D, Center, Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Vector3 } from "three";
 import Target from "./Target";
 
 export const LTile = forwardRef((props, ref) => {
-  const { isDraged = false } = props;
+  const { isDraged = false, isEdge = false, edgeColor = "" } = props;
   const { nodes, materials } = useGLTF("/LTile-transformed.glb");
   const targetRef = useRef();
-  const [targetAnimation,setTargetAnimation] =useState("");
-  const tileRef=useRef();
+  const [targetAnimation, setTargetAnimation] = useState("");
+  const tileRef = useRef();
   useImperativeHandle(ref, () => ({
     getTile: () => tileRef.current,
-    setAnimation: (str)=>setTargetAnimation(str),
+    setAnimation: (str) => setTargetAnimation(str),
   }));
 
   return (
     <group {...props} position={props.position} ref={tileRef} dispose={null}>
-      {props.userData?.target !== undefined &&<Target target={props.userData.target} scale={props.scale} targetAnimation={targetAnimation}  ></Target>}
+      {props.userData?.target !== undefined && (
+        <Target
+          target={props.userData.target}
+          scale={props.scale}
+          targetAnimation={targetAnimation}
+        ></Target>
+      )}
       {/* <axesHelper scale={2} position={[0, 2, 0]}></axesHelper> */}
-      <mesh geometry={nodes.Cube.geometry} material={materials.floor} />
-      <mesh geometry={nodes.Cube_1.geometry} material={materials.outside} />
+      <mesh geometry={nodes.Cube.geometry} material={materials.floor}>
+        <Edges
+          visible={isEdge}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={edgeColor}
+        ></Edges>
+      </mesh>
+      <mesh geometry={nodes.Cube_1.geometry} material={materials.outside}>
+        <Edges
+          visible={isEdge}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={edgeColor}
+        ></Edges>
+      </mesh>
       <mesh
         geometry={nodes.Cube_2.geometry}
         material={materials["Material.001"]}
-      />
-      <mesh geometry={nodes.Cube_3.geometry} material={materials.wall_color} />
+      >
+        <Edges
+          visible={isEdge}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={edgeColor}
+        ></Edges>
+      </mesh>
+      <mesh geometry={nodes.Cube_3.geometry} material={materials.wall_color}>
+        <Edges
+          visible={isEdge}
+          lineWidth={5}
+          scale={1.1}
+          renderOrder={1000}
+          color={edgeColor}
+        ></Edges>
+      </mesh>
     </group>
   );
 });

@@ -1,12 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Canva from "./components/Canvas";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorPage from "./components/ErrorPage";
 import GameRoom from "./components/GameRoom";
 import LandingPage from "./components/LandingPage";
 import { LoginProvider } from "./components/LoginContext";
-import PrivateRoute from "./components/PriteRoute";
-import { SocketProvider } from "./components/SocketContext";
+import PrivateRoute from "./components/PriteRoute"; 
 import { io } from "socket.io-client";
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],

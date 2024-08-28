@@ -86,6 +86,7 @@
   right: 0; /* 가로축의 오른쪽 끝으로 이동 */
   width: 150px;
   z-index: 1000;
+  font-size: 150%;
   text-align: center;
   -webkit-text-stroke: 0.4px black;
   table-layout: fixed;
@@ -226,7 +227,7 @@
     display: flex;
     .speech-bubble {
       position: relative;
-      color: white;
+      color: black;
       background: #f0ff1a;
       text-align: left;
       border-radius: 0.4em;
@@ -374,7 +375,7 @@
     display: flex;
     .speech-bubble {
       position: relative;
-      color: white;
+      color: black;
       text-align: left;
       background: #f0ff1a;
       border-radius: .4em;

@@ -111,7 +111,7 @@ let testGamePieceInfo = [
     targets: ["S", "T", "U", "X", "Y", "Z"],
   },
 ];
-function Canva({ socket }) {
+function Canva({ socket,netAddress }) {
   const cameraRef = useRef();
   const gameObjectRef = useRef();
   const ref = useRef();
@@ -133,8 +133,7 @@ function Canva({ socket }) {
   const [dragTileDir, setDragTileDir] = useState(0);
   // 서버에서 온 타일들의 정보를 기록하는 state
   const [serverTileInfo, setServerTileInfo] = useState(server_side_tile_infos);
-  // 자신의 번호를 넘겨주는 state
-  // const [myPieceInfo ,setMyPieceInfo] = useState({ nickName: "Sam" , key:2 });
+  // 자신의 번호를 넘겨주는 state 
   const [myPieceInfo, setMyPieceInfo] = useState({});
   // 누구의 차례인지 받아오는 state
   const [whosTurn, setWhosTurn] = useState(2);
@@ -200,7 +199,7 @@ function Canva({ socket }) {
   // 시작할때 받아오는 useEffect
   useEffect(() => {
     axios
-      .get("http://localhost:3001/game/init")
+      .get("http://"+netAddress+":3001/game/init")
       .then((res) => {
         setUserInfo(res.data.answer.userInfo);
         setServerTileInfo(res.data.answer.tileInfo);
@@ -243,8 +242,7 @@ function Canva({ socket }) {
         />
         <Canvas>
           <Camera ref={cameraRef} state={state} />
-          <ambientLight intensity={0.3} />
-          {/* <directionalLight position={[10, 10, 10]} intensity={1} /> */}
+          <ambientLight intensity={0.3} /> 
           <Suspense>
             <GameObejcts
               ref={gameObjectRef}

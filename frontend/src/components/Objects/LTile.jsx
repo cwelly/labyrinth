@@ -40,7 +40,7 @@ export const LTile = forwardRef((props, ref) => {
         <Edges
           visible={isEdge}
           lineWidth={5}
-          scale={1.1}
+          scale={1.0}
           renderOrder={1000}
           color={edgeColor}
         ></Edges>
@@ -49,7 +49,7 @@ export const LTile = forwardRef((props, ref) => {
         <Edges
           visible={isEdge}
           lineWidth={5}
-          scale={1.1}
+          scale={1.0}
           renderOrder={1000}
           color={edgeColor}
         ></Edges>
@@ -61,7 +61,7 @@ export const LTile = forwardRef((props, ref) => {
         <Edges
           visible={isEdge}
           lineWidth={5}
-          scale={1.1}
+          scale={1.0}
           renderOrder={1000}
           color={edgeColor}
         ></Edges>
@@ -70,7 +70,7 @@ export const LTile = forwardRef((props, ref) => {
         <Edges
           visible={isEdge}
           lineWidth={5}
-          scale={1.1}
+          scale={1.0}
           renderOrder={1000}
           color={edgeColor}
         ></Edges>

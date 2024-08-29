@@ -11,6 +11,8 @@
   text-align: center;
   align-items: center;
   table-layout: fixed;
+  border-radius: 100px;
+  user-select: none;
 }
 #infos{
   position: fixed;
@@ -98,6 +100,7 @@
 #current-target {
   font-family: "cookieBold";
   // background-color: #fedbb3;
+  user-select: none;
   position: fixed;
   font-size: x-large;
   transform: translateX(-50%);
@@ -106,6 +109,9 @@
   z-index: 999;
   text-align: center;
   align-items: center;
+  .alpha{
+    font-family: "notoExtraBold";
+  }
 }
 
 #chatroom-big {

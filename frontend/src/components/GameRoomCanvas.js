@@ -141,8 +141,7 @@ function GameRoomCanvas() {
         rotation={[3, -1, 3]}
         scale={[1, 0.1, 1]}
       /> 
-      <OrbitControls autoRotate={true} minDistance={1} maxDistance={40}/>
-      {/* <CameraControls   ref={cameraRef} minDistance={1} maxDistance={40}></CameraControls> */}
+      <OrbitControls autoRotate={true} minDistance={1} maxDistance={40}/> 
     </>
   );
 }

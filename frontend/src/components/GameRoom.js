@@ -15,16 +15,16 @@ import { Canvas } from "@react-three/fiber";
 import GameRoomCanvas from "./GameRoomCanvas";
 import { Environment } from "@react-three/drei";
 
-
-function GameRoom({socket} ) {
+function GameRoom({ socket, netAddress }) {
   const [chatVisible, setChatVisible] = useState(true);
   const [ready, setReady] = useState(false);
   const [myInfo, setMyInfo] = useState({});
   const navigate = useNavigate();
   const { loginedNickname } = useAuth();
   const [userInfo, setUserInfo] = useState([]);
-  const chatRef=useRef();
-  const [chatMassages , setChatMassages] = useState([]);
+  const chatRef = useRef();
+  const [emptyArr, setEmptyArr] = useState([1, 2, 3, 4]);
+  const [chatMassages, setChatMassages] = useState([]);
   useEffect(() => {
     socket.on("sendedChat", (data) => {
       setChatMassages(data);
@@ -34,47 +34,33 @@ function GameRoom({socket} ) {
       socket.off("sendedChat");
     };
   }, [socket]);
-  // 이 페이지에서 벗어날때 처리하는 effect
+  const resetTextInput = () => {
+    chatRef.current.value = null;
+  };
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      // 유저 상태를 "inactive"로 변경
-      // setUser((prevUser) => ({
-      //   ...prevUser,
-      //   status: 'inactive',
-      // }));
-      // socket.emit("test","나 나간다");
-      // logout();
-    };
-
-    const handlePopState = () => {
-      // 뒤로가기를 할 때 유저 상태를 "inactive"로 변경
-      // setUser((prevUser) => ({
-      //   ...prevUser,
-      //   status: 'inactive',
-      // }));
-      // logout();
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
-    };
+    console.log(
+      "닉네임 ; ",
+      localStorage.getItem("nickname"),
+      myInfo,
+      loginedNickname
+    );
   }, []);
-  const  resetTextInput =()=>{
-    chatRef.current.value=null;
-  }
-  useEffect(()=>{
-    setMyInfo(userInfo.filter(
-      (player) => player.nickName === loginedNickname
-    ))
-  },[userInfo,loginedNickname])
+  useEffect(() => {
+    setMyInfo(userInfo.filter((player) => player.nickName === loginedNickname));
+    if (userInfo.length === 1) {
+      setEmptyArr([1, 2, 3]);
+    } else if (userInfo.length === 2) {
+      setEmptyArr([1, 2]);
+    } else if (userInfo.length === 3) {
+      setEmptyArr([1]);
+    } else {
+      setEmptyArr([]);
+    }
+  }, [userInfo, loginedNickname]);
   // 처음 들어올때 유저정보를 초기화하는 부분
-  useEffect(  () => {
+  useEffect(() => {
     axios
-      .get("http://localhost:3001/players")
+      .get("http://" + netAddress + ":3001/players")
       .then((res) => {
         setUserInfo(res.data.players);
         setMyInfo(
@@ -94,48 +80,62 @@ function GameRoom({socket} ) {
     socket.on("readiedPlayers", (players) => {
       setUserInfo(players);
     });
-    socket.on('gameStarted',()=>{
-      navigate('/Canva')
+    socket.on("gameStarted", () => {
+      navigate("/Canva");
     });
     return () => {
       socket.off("readiedPlayers");
       socket.off("updatePlayers");
     };
-  }, [socket,navigate]);
+  }, [socket, navigate]);
   // console.log(myInfo,"내정보")
   return (
     <>
       {
         // 게임준비완료버튼을 생성하는 조건
-        userInfo?.length > 1 &&
+        myInfo.length !== 0 &&userInfo?.length > 1 &&
           userInfo.filter((user) => user.isReady === true).length ===
-            userInfo.length&&myInfo[0].key===1&&
-            <div ><Button id="start-button" variant="warning" onClick={()=>{socket.emit('gameStart',{})}}>게임시작</Button></div>
+            userInfo.length &&
+          myInfo[0].key === 1 && (
+            <div>
+              <Button
+                id="start-button"
+                variant="warning"
+                onClick={() => {
+                  socket.emit("gameStart", {});
+                }}
+              >
+                게임시작
+              </Button>
+            </div>
+          )
       }
-      <Canvas style={{ backgroundColor: "#87CEEB", zIndex:"-1"}} >
+      <Canvas style={{ backgroundColor: "#87CEEB", zIndex: "-1" }}>
         <GameRoomCanvas></GameRoomCanvas>
       </Canvas>
-      <div>
-        <Button
-          id="ready-button"
-          variant={ready ? "primary" : "outline-primary"}
-          onClick={() => {
-            setReady(!ready);
-            // 값들 바꿀 부분
-            // 송신할 부분
-            const newUserInfo = userInfo.map((user) => {
-              if (user.nickName === loginedNickname) {
-                return { ...user, isReady: !user.isReady };
-              }
-              return user;
-            });
-            socket.emit("readyPlayers", loginedNickname);
-            setUserInfo(newUserInfo);
-          }}
-        >
-          준비 완료
-        </Button>
-      </div>
+      {myInfo.length !== 0 && (
+        <div>
+          <Button
+            id="ready-button"
+            variant={ready ? "primary" : "secondary"}
+            onClick={() => {
+              setReady(!ready);
+              // 값들 바꿀 부분
+              // 송신할 부분
+              const newUserInfo = userInfo.map((user) => {
+                if (user.nickName === loginedNickname) {
+                  return { ...user, isReady: !user.isReady };
+                }
+                return user;
+              });
+              socket.emit("readyPlayers", loginedNickname);
+              setUserInfo(newUserInfo);
+            }}
+          >
+            준비 완료
+          </Button>
+        </div>
+      )}
       <div id="ready">
         <Table id="ready-table" bordered>
           {userInfo !== undefined ? (
@@ -153,6 +153,11 @@ function GameRoom({socket} ) {
                     ></td>
                   );
                 })}
+                {emptyArr.map((cc, idx) => {
+                  return (
+                    <td key={idx} className="ready-space-not-readied"></td>
+                  );
+                })}
               </tr>
               <tr>
                 {userInfo?.map((user) => {
@@ -161,6 +166,9 @@ function GameRoom({socket} ) {
                       {user.nickName}
                     </td>
                   );
+                })}
+                {emptyArr.map((cc, idx) => {
+                  return <td key={idx}></td>;
                 })}
               </tr>
             </tbody>
@@ -189,44 +197,45 @@ function GameRoom({socket} ) {
           )}
         </ListGroup>
       </div>
-      {chatVisible ? (
-        <div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}>
-          <Image id="player-list-icon" src="list.png" /> 대화하기
-        </div>
-      ) : (
-        <div id="chatroom-big">
-          <Image
-            id="chatroom-icon"
-            src="minimize_img.png"
-            onClick={() => setChatVisible(!chatVisible)}
-          />
-          <div className="messages-list">
-            {chatMassages.map((mes, idx) => {
-              if (mes.key === myInfo[0].key) {
-                return (
-                  <div key={idx} className={"message-my-" + myInfo[0].color}>
-                    <p1 className="time">{mes.time}</p1>
-                    <hgroup className="speech-bubble">
-                      <h4>{mes.massage}</h4>
-                    </hgroup>
-                  </div>
-                );
-              } else {
-                return (
-                  <div key={idx} className={"message-another-" + mes.color}>
-                    <hgroup className="speech-bubble">
-                      <h4>{mes.massage}</h4>
-                    </hgroup>
-                    <div>
-                      <p1 className="another-name">{mes.nickName}</p1>
-                      <p1 className="time">{mes.time}</p1>
-                    </div>
-                  </div>
-                );
-              }
-            })}
+      {myInfo.length !== 0 &&
+        (chatVisible ? (
+          <div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}>
+            <Image id="player-list-icon" src="list.png" /> 대화하기
           </div>
-          <form
+        ) : (
+          <div id="chatroom-big">
+            <Image
+              id="chatroom-icon"
+              src="minimize_img.png"
+              onClick={() => setChatVisible(!chatVisible)}
+            />
+            <div className="messages-list">
+              {chatMassages.map((mes, idx) => {
+                if (mes.key === myInfo[0].key) {
+                  return (
+                    <div key={idx} className={"message-my-" + myInfo[0].color}>
+                      <p1 className="time">{mes.time}</p1>
+                      <hgroup className="speech-bubble">
+                        <h4>{mes.massage}</h4>
+                      </hgroup>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div key={idx} className={"message-another-" + mes.color}>
+                      <hgroup className="speech-bubble">
+                        <h4>{mes.massage}</h4>
+                      </hgroup>
+                      <div>
+                        <p1 className="another-name">{mes.nickName}</p1>
+                        <p1 className="time">{mes.time}</p1>
+                      </div>
+                    </div>
+                  );
+                }
+              })}
+            </div>
+            <form
               className="message-form"
               onSubmit={(e) => {
                 e.preventDefault();
@@ -234,8 +243,7 @@ function GameRoom({socket} ) {
                 const minutes = now.getMinutes().toString().padStart(2, "0");
                 const hour = now.getHours().toString().padStart(2, "0");
                 // console.log(now.getHours)
-                if(chatRef.current.value.length>0){
-
+                if (chatRef.current.value.length > 0) {
                   socket.emit("sendingChat", {
                     massage: chatRef?.current.value,
                     nickName: myInfo[0].nickName,
@@ -247,11 +255,11 @@ function GameRoom({socket} ) {
                 }
               }}
             >
-            <input type="text" className="message-input" ref={chatRef} />
-            <button className="send-button">send</button>
-          </form>
-        </div>
-      )}
+              <input type="text" className="message-input" ref={chatRef} />
+              <button className="send-button">send</button>
+            </form>
+          </div>
+        ))}
     </>
   );
 }

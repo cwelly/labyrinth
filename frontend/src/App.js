@@ -7,14 +7,15 @@ import LandingPage from "./components/LandingPage";
 import { LoginProvider } from "./components/LoginContext";
 import PrivateRoute from "./components/PriteRoute"; 
 import { io } from "socket.io-client";
-const socket = io("http://localhost:3001", {
+const netAddress = "192.168.2.254";
+const socket = io("http://"+netAddress+":3001", {
   transports: ["websocket", "polling"],
 });
 
 function App() {
   return (
     <div className="App" style={{ width: "100%", height: "100%" }}>
-      <LoginProvider> 
+      <LoginProvider netAddress={netAddress}> 
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />}></Route>
@@ -22,7 +23,7 @@ function App() {
                 path="/GameRoom"
                 element={
                   <PrivateRoute>
-                    <GameRoom socket={socket}  />
+                    <GameRoom socket={socket} netAddress={netAddress} />
                   </PrivateRoute>
                 }
               ></Route>
@@ -30,7 +31,7 @@ function App() {
                 path="/Canva"
                 element={
                   <PrivateRoute>
-                    <Canva socket={socket}  />
+                    <Canva socket={socket} netAddress={netAddress} />
                   </PrivateRoute>
                 }
               ></Route>

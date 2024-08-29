@@ -263,10 +263,7 @@ const GameObejcts = forwardRef((props, ref) => {
     tile: [],
     piece: [],
     target: [],
-  });
-  // 목표target이 움직일지를 결정하는 state
-  // const [targetAnimations, setTargetAnimations] = useState(new Array(49).fill(""));
-  // const targetAnimationss = new Array(49).fill("");
+  }); 
 
   // 타겟을 달성할때를 체크하기 위한 state
   const [complished, setComplished] = useState(false);
@@ -1872,26 +1869,26 @@ const GameObejcts = forwardRef((props, ref) => {
           }}
           onDrag={(e) => {
             const tile = dragTileRef.current.getDragTile().matrixWorld.elements;
-            if (dragTileCnt > 2) {
-              if (confirmTileInfo?.isVisible === true) {
-                const position = new THREE.Vector3(
-                  tile[12],
-                  tile[13],
-                  tile[14]
-                );
-                socket.emit("dragingTile", { position });
-              } else {
-                const position = new THREE.Vector3(
-                  confirmTileInfo.position.x,
-                  confirmTileInfo.position.y,
-                  confirmTileInfo.position.z
-                );
-                socket.emit("dragingTile", { position });
-              }
-              dragTileCnt = 0;
+            if (confirmTileInfo?.isVisible === true) {
+              const position = new THREE.Vector3(
+                tile[12],
+                tile[13],
+                tile[14]
+              );
+              socket.emit("dragingTile", { position });
             } else {
-              dragTileCnt += 1;
+              const position = new THREE.Vector3(
+                confirmTileInfo.position.x,
+                confirmTileInfo.position.y,
+                confirmTileInfo.position.z
+              );
+              socket.emit("dragingTile", { position });
             }
+            // if (dragTileCnt > 2) {
+            //   dragTileCnt = 0;
+            // } else {
+            //   dragTileCnt += 1;
+            // }
           }}
           onDragEnd={(e) => {
             cameraRef.current.getCamera().enabled = true;
@@ -1977,5 +1974,3 @@ const GameObejcts = forwardRef((props, ref) => {
 });
 // }
 export default GameObejcts;
-// 내턴이 끝날때 실행하게 될 메소드
-// publish('boardUpdate', newBoardState);

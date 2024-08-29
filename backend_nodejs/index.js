@@ -194,6 +194,7 @@ app.get("/game/init", (req, res) => {
   answer.dragTileInfo = dragTileInfo;
   answer.turnInfo = turnInfo;
   answer.chatMassages = chatMassages;
+  answer.way=way;
   // userInfo = getPlayerInfo(players);
   // 예외상황 핸들러
   if (Object.keys(players).length < 2) {
@@ -335,13 +336,13 @@ io.on("connection", (socket) => {
     whosTurn = 1;
     turnInfo = 1;
     // 현재 플레이어들의 타겟을 정해줘야하고
-    // targetRandomizer();
+    targetRandomizer();
     // 타일 위치도 정해줘야 함
     const result = tileRandomizer();
     userInfo = getPlayerInfo(players);
-    userInfo=userInfo.map((player , idx)=>{
-      return {...player , targets:[test_target[idx]],coordinate:init_coordinates[idx]}
-    })
+    // userInfo=userInfo.map((player , idx)=>{
+    //   return {...player , targets:[test_target[idx]],coordinate:init_coordinates[idx]}
+    // })
     tileInfo = result.tileInfo;
     // 드래그 타일도 정해줘야 함
     dragTileInfo = result.dragTileInfo[0];

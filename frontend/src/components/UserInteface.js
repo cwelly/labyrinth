@@ -120,10 +120,10 @@ function UserInterface(props) {
         </div>
       )}
 
-      <Table id="current-score" bordered>
+      <Table id="current-score" bordered striped>
         <thead className="table-head">
           <tr>
-            <td colSpan={userInfo.length}>남은 목표수</td>
+            <td colSpan={userInfo.length}>남은 목표 수</td>
           </tr>
         </thead>
         {userInfo !== undefined ? (
@@ -264,7 +264,7 @@ function UserInterface(props) {
         <ListGroup>
           <ListGroupItem>현재 목표</ListGroupItem>
           {myPieceInfo.targets !== undefined ? (
-            <ListGroupItem>{myPieceInfo?.targets[0]}</ListGroupItem>
+            <ListGroupItem className="alpha">{myPieceInfo?.targets[0]}</ListGroupItem>
           ) : (
             <div>Loading...</div>
           )}

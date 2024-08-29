@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
 export const LoginContext = createContext();
 
-export const LoginProvider = ({ children }) => {
+export const LoginProvider = ({ children,netAddress }) => {
   const [loginedNickname, setLoginedNickname] = useState(() => {
     const savedNickname = localStorage.getItem("nickname");
     return savedNickname ? JSON.parse(savedNickname) : null;
@@ -25,7 +25,7 @@ export const LoginProvider = ({ children }) => {
   const login= async (nickname) => {
     try {
       // 서버에 로그인 요청을 보냅니다
-      const response = await axios.post('http://localhost:3001/login', { nickname });
+      const response = await axios.post('http://'+netAddress+':3001/login', { nickname });
       
       if (response.data.success&&response.data.loginedNickname) {
         // 로그인 성공 시

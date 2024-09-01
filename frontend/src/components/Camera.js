@@ -6,7 +6,8 @@ import React, {
 } from "react";
 import { CameraControls, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import ThreeViewCamera from "./ViewCamera";
 // function Camera() {
 const Camera = forwardRef((props, ref) => {
   const cameraControlsRef = useRef();
@@ -15,8 +16,8 @@ const Camera = forwardRef((props, ref) => {
   const { turnInfo,dragTilePosition } = props.state;
   const {set} = useThree(); 
   // 카메라의 위치를 초기 위치 로 리셋하는 함수
-
-  useEffect(() => {
+ 
+  useFrame(() => {
     if (turnInfo === 2) { 
       const nowPosi = mainRef.current.position;
       let endPosi = [dragTilePosition.x,dragTilePosition.y,dragTilePosition.z];
@@ -113,7 +114,8 @@ const Camera = forwardRef((props, ref) => {
     } else {
       set({camera : mainRef.current})
     }
-  }, [turnInfo,set , settingRef,mainRef,dragTilePosition]);
+  })
+  // , [turnInfo,set , settingRef,mainRef,dragTilePosition]);
   // 초기에 카메라가 바라볼수 있는 위치를 제어하는 메소드
   useEffect(() => {
     if (cameraControlsRef !== undefined) {
@@ -132,15 +134,13 @@ const Camera = forwardRef((props, ref) => {
   return (
     <>
       <PerspectiveCamera ref={settingRef} position={[0, 10, 0]} target={dragTilePosition} fov={75} />
-
       <PerspectiveCamera
         ref={mainRef}
-        makeDefault
         position={[-15, 10, 0]}
         fov={60}
         target={[0, 0, 10]}
       />
-
+      {(turnInfo===2&&<ThreeViewCamera/>)}
       <CameraControls
         ref={cameraControlsRef}
         minPolarAngle={0}

@@ -1,4 +1,4 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   Grid,
   GizmoHelper,
@@ -22,7 +22,7 @@ import React, {
 } from "react";
 import UserInterface from "./UserInteface";
 import axios from "axios";
-import * as THREE from "three";
+import * as THREE from "three"; 
 // 서버에서 받아온 각 좌표에 대한 타일 및 방향 정보
 let server_side_tile_infos = [
   { type: "L", dir: 0 },
@@ -242,6 +242,8 @@ function Canva({ socket,netAddress }) {
         />
         <Canvas>
           <Camera ref={cameraRef} state={state} />
+          {/* <ThreeViewCamera/> */}
+          
           <ambientLight intensity={0.3} /> 
           <Suspense>
             <GameObejcts

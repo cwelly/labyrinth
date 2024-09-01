@@ -195,7 +195,6 @@ app.get("/game/init", (req, res) => {
   answer.turnInfo = turnInfo;
   answer.chatMassages = chatMassages;
   answer.way=way;
-  // userInfo = getPlayerInfo(players);
   // 예외상황 핸들러
   if (Object.keys(players).length < 2) {
     return res.status(400).send({

@@ -7,7 +7,8 @@ import LandingPage from "./components/LandingPage";
 import { LoginProvider } from "./components/LoginContext";
 import PrivateRoute from "./components/PriteRoute"; 
 import { io } from "socket.io-client";
-const netAddress = "192.168.2.254";
+const netAddress="localhost";
+// const netAddress = "192.168.2.254";
 const socket = io("http://"+netAddress+":3001", {
   transports: ["websocket", "polling"],
 });

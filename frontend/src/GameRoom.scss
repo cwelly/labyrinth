@@ -52,10 +52,11 @@
 #game-player-list {
   font-family: "cookieBold", sans-serif;
   position: fixed;
-  top: 60%; /* 상단에 위치 */
+  top: 50%; /* 상단에 위치 */
   right: 0; /* 가로축의 오른쪽 끝으로 이동 */
   width: 12%;
   font-size: 150%;
+  transform: translateY(-50%);
   z-index: 1000;
   text-align: center;
   -webkit-text-stroke: 0.4px black;

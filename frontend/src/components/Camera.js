@@ -139,8 +139,7 @@ const Camera = forwardRef((props, ref) => {
         position={[-15, 10, 0]}
         fov={60}
         target={[0, 0, 10]}
-      />
-      {(turnInfo===2&&<ThreeViewCamera/>)}
+      /> 
       <CameraControls
         ref={cameraControlsRef}
         minPolarAngle={0}

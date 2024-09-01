@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { Canvas } from "@react-three/fiber";
 import GameRoomCanvas from "./GameRoomCanvas";
 import {
+  CameraControls,
   Environment,
   OrbitControls,
   PerspectiveCamera,
@@ -75,7 +76,7 @@ function GameRoom({ socket, netAddress }) {
           )
         );
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [loginedNickname]);
 
   // 유저정보가 바뀔때마다 반응하도록 하는 effect
@@ -100,68 +101,77 @@ function GameRoom({ socket, netAddress }) {
       {
         // 게임준비완료버튼을 생성하는 조건
         myInfo.length !== 0 &&
-          userInfo?.length > 1 &&
-          userInfo.filter((user) => user.isReady === true).length ===
-            userInfo.length &&
-          myInfo[0].key === 1 && (
-            <div>
-              <Button
-                id="start-button"
-                variant="warning"
-                onClick={() => {
-                  socket.emit("gameStart", {});
-                }}
-              >
-                게임시작
-              </Button>
-            </div>
-          )
+        userInfo?.length > 1 &&
+        userInfo.filter((user) => user.isReady === true).length ===
+        userInfo.length &&
+        myInfo[0].key === 1 && (
+          <div>
+            <Button
+              id="start-button"
+              variant="warning"
+              onClick={() => {
+                socket.emit("gameStart", {});
+              }}
+            >
+              게임시작
+            </Button>
+          </div>
+        )
       }
+      <div id="ready">
+        {userInfo !== undefined ? (
+          <>
+            {
+              userInfo?.map((user) => {
+                return (
+                  <div className="ready-space" key={user.key}> 
+                    <div className="ready-space-nickName">{user.nickName}</div>
+                    <View className="ready-space-view" index={3} frames={1} >
+                      {user.isReady?(<color attach="background" args={["grey"]} />):(<color attach="background" args={["white"]} />)}
+                      <PieceTest
+                        position={[0, 0, 0]}
+                        sclae={[0.2, 0.2, 0.2]}
+                        color={user.color} ></PieceTest>
 
+                      <ambientLight intensity={0.9} />
+                      <directionalLight position={[10, 10, 10]} intensity={1} />
+                      <PerspectiveCamera makeDefault fov={60} position={[0, 1, 5]} />
+                    </View>
+                    {user.isReady&&<div className="ready-space-isRedied">ready</div>}
+                  </div>
+                );
+              })
+            }
+            {
+              (emptyArr.map((cc, idx) => {
+                return (
+                  <div className="ready-space" key={idx}></div>
+                );
+              }))
+            }
+          </>
+        ) : (
+          <Spinner animation="border" role="status" />
+        )}
+
+
+      </div>
       <Canvas
-        // eventSource={document.getElementById("root")}
+        eventSource={document.getElementById("root")}
         style={{
-          // position: "fixed",
-          // top: 0,
-          // bottom: 0,
-          // left: 0,
-          // right: 0,
-          // overflow: "hidden",
-          background:"#87CEEB",
+          position: "fixed",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          overflow: "hidden",
+          // background:"#87CEEB",
           zIndex: "-1",
         }}
       >
-        <GameRoomCanvas></GameRoomCanvas>
-        {/* <View.Port></View.Port> */}
+        {/* <GameRoomCanvas></GameRoomCanvas> */}
+        <View.Port></View.Port>
       </Canvas>
-      <div id="">
-        <View
-          frames={1}
-          id="viewview"
-          style={{
-            zIndex: "10000",
-            position: "relative",
-            left: "0",
-            width: "13%",
-            height: "28%",
-            display: "inline-block",
-            overflow: "hidden",
-          }}
-        >
-          <PieceTest
-            position={[0, 0, 0]}
-            sclae={[0.2, 0.2, 0.2]}
-            color={"red"}
-          ></PieceTest>
-
-          <ambientLight intensity={0.5} />
-          <pointLight position={[20, 30, 10]} intensity={1} />
-          <pointLight position={[-10, -10, -10]} color="blue" />
-          <Environment preset="dawn" />
-          {/* <OrbitControls makeDefault></OrbitControls> */}
-          <PerspectiveCamera makeDefault fov={60} position={[0, 1, 7]} />
-        </View>
-      </div>
       {myInfo.length !== 0 && (
         <div>
           <Button
@@ -185,7 +195,11 @@ function GameRoom({ socket, netAddress }) {
           </Button>
         </div>
       )}
-      <div id="ready">
+      <View style={{width:"100%" ,height:"100%"}}>
+      <color attach="background" args={["#87CEEB"]} />
+        <GameRoomCanvas></GameRoomCanvas>
+      </View>
+      {/* <div id="ready">
         <Table id="ready-table" bordered>
           {userInfo !== undefined ? (
             <tbody>
@@ -225,7 +239,7 @@ function GameRoom({ socket, netAddress }) {
             <Spinner animation="border" role="status" />
           )}
         </Table>
-      </div>
+      </div> */}
       <div id="game-player-list">
         <ListGroup>
           <ListGroupItem variant="light">참가자</ListGroupItem>

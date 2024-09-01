@@ -35,7 +35,7 @@ function UserInterface(props) {
   const chatRef = useRef();
 
 
-  
+
 
   // 채팅 관련 useEffect
   useEffect(() => {
@@ -46,7 +46,7 @@ function UserInterface(props) {
     return () => {
       socket.off("sendedChat");
     };
-  }, [setChatMassages,socket]);
+  }, [setChatMassages, socket]);
   useEffect(() => {
     if (warningPosition) {
       setWarningPosition(true);
@@ -119,8 +119,25 @@ function UserInterface(props) {
           </Offcanvas>
         </div>
       )}
-
-      <Table id="current-score" bordered striped>
+      <div className="scoreboard-container">
+        {userInfo !== undefined ? (userInfo?.map((user) => {
+          return (
+            <div key={user?.key} className="notepad">
+              <div className="notepad-holes">
+                <span className="hole"></span>
+                <span className="hole"></span>
+                <span className="hole"></span>
+                <span className="hole"></span>
+              </div>
+              <div className={"notepad-header-"+user.color}>{user.nickName}</div>
+              <div className="notepad-content">{user.targets.length}</div>
+            </div>
+          );
+        })) : (
+          <Spinner animation="border" role="status" />
+        )} 
+      </div>
+      {/* <Table id="current-score" bordered striped>
         <thead className="table-head">
           <tr>
             <td colSpan={userInfo.length}>남은 목표 수</td>
@@ -147,10 +164,10 @@ function UserInterface(props) {
         ) : (
           <Spinner animation="border" role="status" />
         )}
-      </Table>
-      {myPieceInfo&&whosTurn === myPieceInfo.key && (
+      </Table> */}
+      {myPieceInfo && whosTurn === myPieceInfo.key && (
         <div id="infos" >
-          
+
           <Button
             id="confirm-button"
             size="lg"
@@ -186,7 +203,7 @@ function UserInterface(props) {
                   style={{ color: user.color }}
                   variant={whosTurn === user.key ? theme : "dark"}
                 >
-                  {whosTurn === user.key && <> 차례<br/></>}
+                  {whosTurn === user.key && <> 차례<br /></>}
                   {user.nickName}
                 </ListGroupItem>
               );
@@ -198,7 +215,7 @@ function UserInterface(props) {
       </div>
 
       {/* <Chatroom chatVisible={chatVisible} setChatVisible={setChatVisible}></Chatroom> */}
-      {myPieceInfo&&(chatVisible ? (
+      {myPieceInfo && (chatVisible ? (
         <div id="chatroom-small" onClick={() => setChatVisible(!chatVisible)}>
           <Image id="player-list-icon" src="list.png" /> 대화하기
         </div>
@@ -260,7 +277,7 @@ function UserInterface(props) {
           </form>
         </div>
       ))}
-      {myPieceInfo&&<div id="current-target">
+      {myPieceInfo && <div id="current-target">
         <ListGroup>
           <ListGroupItem>현재 목표</ListGroupItem>
           {myPieceInfo.targets !== undefined ? (
@@ -270,7 +287,7 @@ function UserInterface(props) {
           )}
         </ListGroup>
       </div>}
-      
+
     </>
   );
 }

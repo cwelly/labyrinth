@@ -1,13 +1,51 @@
+.ready-space {
+  border-color: black;
+  border: solid 0.1px;
+  width: 180px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  opacity: 1; 
+  .ready-space-nickName {
+    font-family: "cookieBold";
+    margin: 5px 10px 10px 10px;
+    font-size: 160%;
+    position: absolute;
+    align-self: self-end;
+  }
+}
+.ready-space-view {  
+  width: 100%;
+  height: 100%; 
+  user-select: none; 
+}
+
+.ready-space-isRedied {
+  font-family: "cookieBold";
+  position: absolute;
+  align-self: center;
+  bottom: 5px;
+  font-size: 200%;
+  color: yellow;
+}
+
 #ready {
   position: fixed;
-  transform: translateX(-50%);
-  top: 0; /* 상단에 위치 */
-  left: 50%; /* 가로축의 오른쪽 끝으로 이동 */
-  border: solid;
+  transform: translateX(-50%); 
+  top: 0;
+  /* 상단에 위치 */
+  left: 50%;
+  /* 가로축의 오른쪽 끝으로 이동 */
+  // border: solid;
   margin: 0;
-  border-width: 1px;
+  // border-width: 1px;
+  z-index: 1002;
+  opacity: 1;
   user-select: none;
+  display: flex;
+  flex-direction: row; 
 }
+
 #start-button {
   font-family: "cookieBold";
   font-size: 50px;
@@ -18,6 +56,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 #ready-button {
   font-family: "cookieBold";
   font-size: 50px;
@@ -29,6 +68,7 @@
   transform: translateX(-50%);
   left: 50%;
 }
+
 #ready-table {
   font-family: "cookieBold", sans-serif;
   font-size: 200%;
@@ -36,24 +76,30 @@
   -webkit-text-stroke: 0.4px black;
   text-align: center;
   table-layout: fixed;
+
   .ready-space-readied {
     width: 200px;
     height: 200px;
-    background-color: rgb(212, 210, 210); /* 이미지 이외의 부분의 배경색 */
+    background-color: rgb(212, 210, 210);
+    /* 이미지 이외의 부분의 배경색 */
     background-image: url("../public/ready.png");
     background-repeat: no-repeat;
     background-position: center;
   }
+
   .ready-space-not-readied {
     width: 200px;
     height: 200px;
   }
 }
+
 #game-player-list {
   font-family: "cookieBold", sans-serif;
   position: fixed;
-  top: 50%; /* 상단에 위치 */
-  right: 0; /* 가로축의 오른쪽 끝으로 이동 */
+  top: 50%;
+  /* 상단에 위치 */
+  right: 0;
+  /* 가로축의 오른쪽 끝으로 이동 */
   width: 12%;
   font-size: 150%;
   transform: translateY(-50%);

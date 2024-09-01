@@ -1,10 +1,117 @@
+.scoreboard-container {
+  position: fixed;
+  display: flex;
+  /* 가로로 나열 */
+  justify-content: space-around;
+  /* 메모장 간 간격 조정 */
+  padding: 20px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* 메모장 기본 스타일 */
+.notepad {
+  width: 200px;
+  margin: 0px 10px 0px 10px;
+  padding: 20px 10px 20px 10px;
+  background-color: #f7f3e9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+
+}
+
+/* 메모장 헤더 스타일 */
+.notepad-header-red {
+  background-color: #ff0000;
+  width: 100%;
+  color: white;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  font-family: "cookieBold";
+  font-size: 200%;
+  border-bottom: 2px dashed #f7f3e9;
+  border-radius: 8px 8px 0 0;
+}
+
+.notepad-header-blue {
+  background-color: #002aff;
+  width: 100%;
+  color: white;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  font-family: "cookieBold";
+  font-size: 200%;
+  border-bottom: 2px dashed #f7f3e9;
+  border-radius: 8px 8px 0 0;
+}
+
+.notepad-header-yellow {
+  background-color: #f0ff1a;
+  width: 100%;
+  color: black;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  font-family: "cookieBold";
+  font-size: 200%;
+  border-bottom: 2px dashed #f7f3e9;
+  border-radius: 8px 8px 0 0;
+}
+
+.notepad-header-green {
+  background-color: #5efb09;
+  width: 100%;
+  color: black;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  font-family: "cookieBold";
+  font-size: 200%;
+  border-bottom: 2px dashed #f7f3e9;
+  border-radius: 8px 8px 0 0;
+}
+
+/* 메모장 내용 스타일 */
+.notepad-content {
+  padding: 10px 0px 0px 0px;
+  font-family: "cookieBold";
+  margin: 0;
+  font-size: 250%;
+  color: #333;
+  text-align: center;
+}
+
+.notepad-holes {
+  position: absolute;
+  top: 14px; /* 구멍이 메모장 위로 살짝 올라오도록 */
+  // left: 5px;
+  transform: translateX(8%); /* 중앙 정렬 */
+  display: flex;
+  justify-content: space-between;
+  width: 150px; /* 구멍들이 차지할 전체 너비 */
+}
+
+/* 구멍 스타일 */
+.hole {
+  width: 14px; /* 구멍 크기 */
+  height: 14px;
+  background-color: #faf3e0; /* 메모지와 같은 배경색 */
+  border: 1px solid #ccc; /* 구멍 테두리 */
+  border-radius: 50%;
+  display: block;
+}
+
+///////////////////////////////////////////////
 #current-score {
   font-family: "cookieBold", sans-serif;
   position: fixed;
   font-size: 150%;
   transform: translateX(-50%);
-  top: 0; /* 상단에 위치 */
-  left: 50%; /* 가로축의 오른쪽 끝으로 이동 */
+  top: 0;
+  /* 상단에 위치 */
+  left: 50%;
+  /* 가로축의 오른쪽 끝으로 이동 */
   width: 40%;
   z-index: 800;
   -webkit-text-stroke: 0.4px black;
@@ -14,7 +121,8 @@
   border-radius: 100px;
   user-select: none;
 }
-#infos{
+
+#infos {
   position: fixed;
   bottom: 0;
   right: 0;
@@ -22,19 +130,21 @@
   display: flex;
   flex-direction: column-reverse;
   z-index: 1000;
+
   button {
     font-family: "cookieBold", sans-serif;
     font-size: 190%;
     margin: 10px;
   }
-  .tooltip{
+
+  .tooltip {
     font-family: "cookieBold";
     font-size: 150%;
     z-index: 100;
     text-align: center;
     margin: 10px;
     border-radius: 5px;
-    color:#fff;
+    color: #fff;
     background-color: #555;
     opacity: 1;
     padding: 5px 0;
@@ -42,6 +152,7 @@
   }
 
 }
+
 #winner {
   font-family: "cookieBold";
   text-align: center;
@@ -49,6 +160,7 @@
   align-items: center;
   background-color: rgba(0, 0, 0, 0.01);
   height: 80%;
+
   h1 {
     align-self: center;
     background: linear-gradient(to bottom, #ffffff, #a0c4ff); // 그라데이션 색상
@@ -59,6 +171,7 @@
     position: absolute;
     top: 30%;
   }
+
   button {
     align-self: center;
     position: absolute;
@@ -67,6 +180,7 @@
     width: 25%;
   }
 }
+
 #winner-table {
   width: 80%;
   max-width: 500;
@@ -75,6 +189,7 @@
   top: 65%;
   transform: translate(-50%, -50%);
   table-layout: fixed;
+
   tr {
     margin: 10px;
     font-size: 30px;
@@ -84,8 +199,10 @@
 #player-list {
   font-family: "cookieBold", sans-serif;
   position: fixed;
-  top: 30%; /* 상단에 위치 */
-  right: 0; /* 가로축의 오른쪽 끝으로 이동 */
+  top: 30%;
+  /* 상단에 위치 */
+  right: 0;
+  /* 가로축의 오른쪽 끝으로 이동 */
   width: 150px;
   z-index: 1000;
   font-size: 150%;
@@ -94,9 +211,11 @@
   table-layout: fixed;
   user-select: none;
 }
+
 #player-list-icon {
   width: 25px;
 }
+
 #current-target {
   font-family: "cookieBold";
   // background-color: #fedbb3;
@@ -109,7 +228,8 @@
   z-index: 999;
   text-align: center;
   align-items: center;
-  .alpha{
+
+  .alpha {
     font-family: "notoExtraBold";
   }
 }
@@ -131,14 +251,16 @@
   text-align: center;
   flex-direction: column;
 }
+
 #chatroom-icon {
   width: 30px;
   margin-left: auto;
   margin-right: 10px;
   margin-bottom: 10px;
-  
+
   border: #ccc;
 }
+
 #chatroom-small {
   font-family: "cookieBold", sans-serif;
   bottom: 0;
@@ -155,18 +277,21 @@
   background: white;
   font-size: 25px;
 }
+
 .messages-list {
   padding: 20px 20px 0px 20px;
   flex-grow: 1;
   width: 100%;
-  overflow:auto;
+  overflow: auto;
   user-select: none;
   display: flex;
   flex-direction: column-reverse;
+
   .message-my-red {
     margin-bottom: 10px;
     justify-content: flex-end;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: white;
@@ -175,11 +300,13 @@
       border-radius: 0.4em;
       padding: 5px 10px 0px 10px;
     }
-    .time{
+
+    .time {
       font-family: "notoThin";
       margin-right: 5px;
       align-self: last baseline;
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -195,10 +322,12 @@
       margin-right: -15px;
     }
   }
+
   .message-my-blue {
     margin-bottom: 10px;
     justify-content: flex-end;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: white;
@@ -207,11 +336,13 @@
       text-align: left;
       padding: 5px 10px 0px 10px;
     }
-    .time{
+
+    .time {
       font-family: "notoThin";
       margin-right: 5px;
       align-self: last baseline;
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -227,10 +358,12 @@
       margin-right: -15px;
     }
   }
+
   .message-my-yellow {
     margin-bottom: 10px;
     justify-content: flex-end;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: black;
@@ -239,11 +372,13 @@
       border-radius: 0.4em;
       padding: 5px 10px 0px 10px;
     }
-    .time{
+
+    .time {
       font-family: "notoThin";
       margin-right: 5px;
       align-self: last baseline;
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -259,10 +394,12 @@
       margin-right: -15px;
     }
   }
+
   .message-my-green {
     margin-bottom: 10px;
     justify-content: flex-end;
     display: flex;
+
     .speech-bubble {
       position: relative;
       text-align: left;
@@ -271,11 +408,13 @@
       border-radius: 0.4em;
       padding: 5px 10px 0px 10px;
     }
-    .time{
+
+    .time {
       font-family: "notoThin";
       margin-right: 5px;
       align-self: last baseline;
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -291,10 +430,12 @@
       margin-right: -15px;
     }
   }
+
   .message-another-red {
     margin-bottom: 10px;
     justify-content: flex-start;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: white;
@@ -304,20 +445,24 @@
       padding: 5px 10px 0px 10px;
       margin-bottom: 10px;
     }
-    div{
+
+    div {
       display: flex;
       flex-direction: column;
-      .another-name{
+
+      .another-name {
         margin-left: 5px;
         font-size: 120%;
         font-family: "cookieBold";
       }
-      .time{
+
+      .time {
         font-family: "notoThin";
         margin-left: 5px;
         margin-top: auto;
       }
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -333,10 +478,12 @@
       margin-left: -25px;
     }
   }
+
   .message-another-blue {
     margin-bottom: 10px;
     justify-content: flex-start;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: white;
@@ -346,20 +493,24 @@
       padding: 5px 10px 0px 10px;
       margin-bottom: 10px;
     }
-    div{
+
+    div {
       display: flex;
       flex-direction: column;
-      .another-name{
+
+      .another-name {
         margin-left: 5px;
         font-size: 120%;
         font-family: "cookieBold";
       }
-      .time{
+
+      .time {
         font-family: "notoThin";
         margin-left: 5px;
         margin-top: auto;
       }
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -375,10 +526,12 @@
       margin-left: -25px;
     }
   }
+
   .message-another-yellow {
     margin-bottom: 10px;
     justify-content: flex-start;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: black;
@@ -388,20 +541,24 @@
       padding: 5px 10px 0px 10px;
       margin-bottom: 10px;
     }
-    div{
+
+    div {
       display: flex;
       flex-direction: column;
-      .another-name{
+
+      .another-name {
         margin-left: 5px;
         font-size: 120%;
         font-family: "cookieBold";
       }
-      .time{
+
+      .time {
         font-family: "notoThin";
         margin-left: 5px;
         margin-top: auto;
       }
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -417,10 +574,12 @@
       margin-left: -25px;
     }
   }
+
   .message-another-green {
     margin-bottom: 10px;
     justify-content: flex-start;
     display: flex;
+
     .speech-bubble {
       position: relative;
       color: white;
@@ -430,20 +589,24 @@
       padding: 5px 5px 10px 10px;
       margin-bottom: 10px;
     }
-    div{
+
+    div {
       display: flex;
       flex-direction: column;
-      .another-name{
+
+      .another-name {
         margin-left: 5px;
         font-size: 120%;
         font-family: "cookieBold";
       }
-      .time{
+
+      .time {
         font-family: "notoThin";
         margin-left: 5px;
         margin-top: auto;
       }
     }
+
     .speech-bubble:after {
       content: "";
       position: absolute;
@@ -460,6 +623,7 @@
     }
   }
 }
+
 .message-form {
   border-top: 1px solid black;
   padding: 10px;
@@ -485,4 +649,3 @@
   color: #fff;
   cursor: pointer;
 }
-
